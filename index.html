@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>北海道観光マスター検定 ランダム特訓アプリ</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide {
+      animation: slideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+  <!-- ヘッダー -->
+  <header class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
+          <i class="ph-bold ph-compass text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-sm font-bold leading-tight flex items-center gap-1.5">
+            北海道観光マスター
+            <span class="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/30 px-1.5 py-0.5 rounded">全8章網羅版</span>
+          </h1>
+          <p class="text-[10px] text-emerald-200">125問問題バンク・ランダム特訓</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="header-search-btn" class="bg-white/10 hover:bg-white/20 active:bg-white/30 px-2.5 py-1.5 rounded-xl text-xs transition border border-white/20 flex items-center gap-1">
+          <i class="ph-bold ph-magnifying-glass text-amber-300"></i>
+          <span>検索</span>
+        </button>
+      </div>
+    </div>
+    <!-- 演習中のプログレスバー -->
+    <div id="progress-bar-container" class="w-full bg-slate-950/60 h-1.5 hidden">
+      <div id="progress-bar" class="bg-gradient-to-r from-amber-400 via-emerald-400 to-teal-300 h-1.5 transition-all duration-300" style="width: 0%;"></div>
+    </div>
+  </header>
+
+  <!-- メインエリア -->
+  <main class="max-w-xl w-full mx-auto p-4 flex-grow flex flex-col justify-center">
+
+    <!-- 画面1: 設定・スタート画面 -->
+    <section id="screen-setup" class="space-y-4 animate-slide">
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-5">
+        <div class="text-center space-y-1">
+          <span class="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+            公式テキスト全8編対応（計125問）
+          </span>
+          <h2 class="text-xl font-black text-slate-800">出題カスタム設定</h2>
+          <p class="text-xs text-slate-500">分野と出題数を選び、毎回ランダムに抽出します</p>
+        </div>
+
+        <!-- 分野・章の選択 -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+            <i class="ph-bold ph-folders text-emerald-600"></i> 出題範囲・分野
+          </label>
+          <select id="select-category" class="w-full bg-slate-50 border border-slate-300 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <option value="all">🌟 全分野からランダム（総合実戦）</option>
+            <option value="第1章 自然">🏔️ 第1章 自然の特徴・気候・生態系（15問）</option>
+            <option value="第2章 基礎情報">📊 第2章 北海道の基礎情報・産業（10問）</option>
+            <option value="第3章 道南">⚓ 第3章 観光地：道南圏（函館・松前・江差）（12問）</option>
+            <option value="第3章 道央">🏙️ 第3章 観光地：道央圏（札幌・小樽・ニセコ）（16問）</option>
+            <option value="第3章 道北">🌾 第3章 観光地：道北圏（旭川・富良野・稚内）（14問）</option>
+            <option value="第3章 オホーツク">🧊 第3章 観光地：オホーツク圏（網走・知床）（12問）</option>
+            <option value="第3章 釧路・根室">🦅 第3章 観光地：釧路・根室圏（湿原・摩周）（10問）</option>
+            <option value="第3章 十勝">🚜 第3章 観光地：十勝圏（帯広・ガーデン）（10問）</option>
+            <option value="第4章 歴史">📜 第4章 北海道の歴史・開拓史（16問）</option>
+            <option value="第5章 祭り">🏮 第5章 北海道の祭り・イベント（12問）</option>
+            <option value="第6章 交通網">🚆 第6章 交通網（鉄道・航空・バス）（10問）</option>
+            <option value="第7章 最新動向">🌐 第7章 観光動向・ATWS（6問）</option>
+          </select>
+        </div>
+
+        <!-- 出題問題数の選択 -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-2 flex items-center gap-1">
+            <i class="ph-bold ph-list-numbers text-emerald-600"></i> 出題問題数（基準：50問）
+          </label>
+          <div class="grid grid-cols-4 gap-2" id="count-selector">
+            <button type="button" data-count="20" class="count-chip py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 text-slate-600 hover:bg-emerald-50">20問</button>
+            <button type="button" data-count="50" class="count-chip py-2.5 rounded-xl border-2 border-emerald-600 text-xs font-bold bg-emerald-50 text-emerald-900 shadow-sm">50問（標準）</button>
+            <button type="button" data-count="100" class="count-chip py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 text-slate-600 hover:bg-emerald-50">100問</button>
+            <button type="button" data-count="9999" class="count-chip py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 text-slate-600 hover:bg-emerald-50">全問走破</button>
+          </div>
+        </div>
+
+        <!-- スタートボタン -->
+        <button id="start-exam-btn" class="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-slate-800 hover:from-emerald-700 hover:to-slate-900 text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 text-base active:scale-[0.98] transition">
+          <i class="ph-bold ph-play text-xl text-amber-300"></i>
+          <span>ランダム演習を開始する</span>
+        </button>
+
+        <!-- 問題数インフォ ＆ JSON追加アコーディオン -->
+        <div class="pt-2 border-t border-slate-100 space-y-2">
+          <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>現在の問題バンク総数：<strong id="total-stored-count" class="text-emerald-700 font-bold">125</strong>問</span>
+            <button id="toggle-json-import-btn" type="button" class="text-xs text-emerald-700 hover:underline flex items-center gap-1 font-semibold">
+              <i class="ph-bold ph-plus-circle"></i>
+              <span>問題データ(JSON)の追加・管理</span>
+            </button>
+          </div>
+
+          <!-- JSON追加フォーム（開閉式） -->
+          <div id="json-import-panel" class="hidden bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 animate-slide">
+            <p class="text-xs text-slate-600 leading-relaxed">
+              追加の問題JSONデータをここに貼り付けて「追加登録」を押すと、端末（ローカルストレージ）に即時追加保存され、500〜1,000問へと拡張できます。
+            </p>
+            <textarea id="json-import-textarea" rows="4" placeholder='[{"cat":"第1章 自然","q":"...","options":["..."],"ans":0,"exp":"...","query":"..."}]' class="w-full text-xs font-mono p-2.5 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+            <div class="flex gap-2">
+              <button id="btn-do-import" type="button" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition">追加登録する</button>
+              <button id="btn-reset-storage" type="button" class="bg-slate-200 hover:bg-rose-100 text-slate-700 hover:text-rose-700 font-bold px-3 py-2 rounded-xl text-xs transition">初期状態に戻す</button>
+            </div>
+            <p id="import-msg" class="text-[11px] font-bold text-emerald-700 hidden"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- スマホホーム画面追加ガイド -->
+      <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 text-xs text-emerald-900 flex items-start gap-3">
+        <i class="ph-fill ph-device-mobile text-2xl text-emerald-700 shrink-0 mt-0.5"></i>
+        <div class="space-y-1">
+          <p class="font-bold">スマホでアプリ化する方法</p>
+          <p class="text-[11px] leading-relaxed text-emerald-800">
+            スマホブラウザで開いて「ホーム画面に追加」をタップすると、アプリアイコンが生成され、全画面でサクサク学習できます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 画面2: 演習画面（1問ずつ即時判定） -->
+    <section id="screen-play" class="hidden space-y-4 animate-slide">
+      <!-- 演習ヘッダー（問題番号・タイマー・分野） -->
+      <div class="flex items-center justify-between text-xs text-slate-600 px-1">
+        <div class="flex items-center gap-2">
+          <span id="play-q-badge" class="bg-emerald-700 text-white font-bold px-2.5 py-0.5 rounded-full text-xs">
+            第 1 / 50 問
+          </span>
+          <span id="play-cat-badge" class="bg-white border border-slate-200 px-2.5 py-0.5 rounded-md font-medium text-slate-600 text-[11px]">
+            第1章 自然
+          </span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="font-mono flex items-center gap-1 text-slate-500">
+            <i class="ph-bold ph-clock"></i>
+            <span id="play-timer">00:00</span>
+          </span>
+          <button id="abandon-exam-btn" class="text-slate-400 hover:text-rose-600 text-xs">
+            中断
+          </button>
+        </div>
+      </div>
+
+      <!-- 問題カード -->
+      <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <h2 id="play-q-text" class="text-base sm:text-lg font-bold text-slate-900 leading-relaxed">
+            問題文がここに表示されます。
+          </h2>
+        </div>
+
+        <!-- 5択選択肢 -->
+        <div id="play-options-list" class="space-y-2.5 pt-1">
+          <!-- 動的生成 -->
+        </div>
+
+        <!-- 即時解説エリア（選択後に展開） -->
+        <div id="play-explanation-box" class="hidden mt-4 pt-4 border-t border-slate-100 space-y-2.5 animate-slide">
+          <div class="flex items-center justify-between">
+            <div id="play-result-feedback" class="font-bold text-sm flex items-center gap-1.5">
+              <!-- 正解 / 不正解 -->
+            </div>
+            <!-- Google検索ボタン -->
+            <button id="play-google-search-btn" class="text-xs text-sky-700 bg-sky-50 hover:bg-sky-100 active:bg-sky-200 border border-sky-200 px-3 py-1 rounded-full font-bold flex items-center gap-1 transition">
+              <i class="ph-bold ph-google-logo text-sky-600"></i>
+              <span>Googleで調べる</span>
+            </button>
+          </div>
+          <p id="play-exp-text" class="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            解説文が表示されます。
+          </p>
+        </div>
+      </div>
+
+      <!-- 次へボタン -->
+      <div id="next-action-area" class="hidden pt-1">
+        <button id="play-next-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-2xl shadow-md flex items-center justify-center gap-1 text-sm transition">
+          <span id="next-btn-text">次の問題へ進む</span>
+          <i class="ph-bold ph-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 画面3: 採点結果発表画面 -->
+    <section id="screen-result" class="hidden space-y-4 animate-slide">
+      <div class="bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200 text-center space-y-5">
+        <div id="result-icon-box" class="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center shadow-inner">
+          <i id="result-trophy-icon" class="text-4xl ph-bold ph-trophy"></i>
+        </div>
+
+        <div class="space-y-1">
+          <span id="result-grade-badge" class="px-3 py-1 text-xs font-bold rounded-full">合否判定</span>
+          <h2 class="text-2xl font-black text-slate-900" id="result-headline">採点結果</h2>
+          <p class="text-xs text-slate-400">合格ライン: 70%以上（検定本番基準）</p>
+        </div>
+
+        <!-- スコア概要 -->
+        <div class="grid grid-cols-3 gap-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div>
+            <span class="text-[11px] text-slate-400 block font-medium">正解数</span>
+            <span class="text-2xl sm:text-3xl font-black text-emerald-600" id="final-correct-count">0</span>
+            <span class="text-[11px] text-slate-400" id="final-total-count">/ 50</span>
+          </div>
+          <div class="border-x border-slate-200">
+            <span class="text-[11px] text-slate-400 block font-medium">正答率</span>
+            <span class="text-2xl sm:text-3xl font-black text-sky-600" id="final-percent">0%</span>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block font-medium">回答時間</span>
+            <span class="text-lg sm:text-xl font-bold font-mono text-slate-700 leading-9" id="final-duration">00:00</span>
+          </div>
+        </div>
+
+        <p id="final-message" class="text-xs sm:text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left leading-relaxed">
+          アドバイス文が入ります。
+        </p>
+
+        <!-- 間違えた問題の振り返りアコーディオン -->
+        <div id="review-mistakes-container" class="hidden text-left space-y-3 pt-2">
+          <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+            <h3 class="font-bold text-sm text-rose-700 flex items-center gap-1.5">
+              <i class="ph-bold ph-warning-circle text-base"></i>
+              <span>間違えた問題の復習（<span id="mistake-count-badge">0</span>問）</span>
+            </h3>
+          </div>
+          <div id="mistakes-list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+            <!-- 不正解カードが動的挿入 -->
+          </div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="space-y-2.5 pt-2">
+          <button id="retry-reshuffle-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold py-3.5 rounded-2xl shadow-md flex items-center justify-center gap-2 text-sm transition">
+            <i class="ph-bold ph-shuffle text-base text-amber-300"></i>
+            <span>もう一度解く（再シャッフル）</span>
+          </button>
+          <button id="back-to-setup-btn" class="w-full bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold py-3 rounded-2xl text-xs flex items-center justify-center gap-1 transition">
+            <i class="ph-bold ph-gear"></i>
+            <span>分野・問題数を変更する</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Google検索モーダル -->
+  <div id="search-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-start justify-center p-4 pt-16">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl animate-slide border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div class="flex items-center gap-2">
+          <i class="ph-bold ph-google-logo text-emerald-600 text-lg"></i>
+          <h3 class="font-bold text-sm text-slate-800">公式テキスト用語 Google検索</h3>
+        </div>
+        <button id="close-search-modal-btn" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+      <form id="global-search-form" class="space-y-3">
+        <div class="relative">
+          <input type="text" id="global-search-input" placeholder="例: モール温泉 / 屯田兵制度 / ATWS" 
+            class="w-full border border-slate-300 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 pr-10">
+          <i class="ph-bold ph-magnifying-glass absolute right-3 top-3 text-slate-400 text-base"></i>
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+          <span>Google検索で周辺知識を確認</span>
+          <i class="ph-bold ph-arrow-square-out"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- フッター -->
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
+    <p class="font-medium text-slate-600">北海道観光マスター検定 ランダム特訓モード</p>
+  </footer>
+
+  <!-- スクリプト: 8ファイル完全網羅 大容量問題バンク（125問） & アプリロジック -->
+  <script>
+    // 全8ファイル（自然、基礎情報、観光地1・2、歴史、祭り、交通網、資料）の太字・数値を網羅した125問の完全データ
+    const QUESTION_BANK = [
+      // ------------------------------------------
+      // ■ 第1章 自然（15問）
+      // ------------------------------------------
+      {
+        cat: "第1章 自然",
+        q: "北海道の気候の特徴として正しいものはどれか。",
+        options: ["本州と同様に6〜7月に本格的な梅雨がある", "日本海側・オホーツク海側・太平洋側の3つに大別される", "夏の最高気温は盆地でも25℃を超えることはない", "降雪量は日高・十勝地方で最も多い", "氷点下30℃を下回る寒冷地は近年存在しない"],
+        ans: 1,
+        exp: "北海道の気候は「日本海側」「オホーツク海側」「太平洋側」の3つに大別され、本州のような梅雨がありません。",
+        query: "北海道 気候 日本海側 オホーツク海側 太平洋側"
+      },
+      {
+        cat: "第1章 自然",
+        q: "北海道における気象官署の観測史上最低気温の公式記録はどれか。",
+        options: ["1902年旭川市の -41.0℃", "1978年幌加内町母子里の -41.2℃", "1931年富良野市の -38.5℃", "1950年稚内市の -35.0℃", "1985年陸別町の -40.5℃"],
+        ans: 0,
+        exp: "気象官署の公式最低気温は1902年の旭川市における「-41.0℃」です（アメダス記録では母子里の-41.2℃）。",
+        query: "旭川市 観測史上最低気温 41度 1902年"
+      },
+      {
+        cat: "第1章 自然",
+        q: "かつて364kmあった流路がショートカット等の治水工事により約58km短縮された河川はどれか。",
+        options: ["天塩川", "石狩川", "十勝川", "釧路川", "尻別川"],
+        ans: 1,
+        exp: "石狩川は蛇行を直線化するショートカット改修によって約58km短縮され、多くの三日月湖が形成されました。",
+        query: "石狩川 ショートカット 三日月湖 治水工事"
+      },
+      {
+        cat: "第1章 自然",
+        q: "渡島半島を除く北海道全域で広く見られる、針葉樹と広葉樹が入り混じった特徴的な森林はどれか。",
+        options: ["照葉樹林", "硬葉樹林", "針広混交林", "熱帯雨林", "落葉広葉樹単一林"],
+        ans: 2,
+        exp: "エゾマツ・トドマツとミズナラ・シナノキ等が混ざり合う「針広混交林」が北海道の植生を象徴しています。",
+        query: "針広混交林 北海道 植生 エゾマツ トドマツ"
+      },
+      {
+        cat: "第1章 自然",
+        q: "キタキツネが媒介し、重い肝機能障害を引き起こす寄生虫はどれか。",
+        options: ["アニサキス", "エキノコックス", "ツツガムシ", "フィラリア", "ギニアウォーム"],
+        ans: 1,
+        exp: "キタキツネの糞便等から感染するエキノコックス（多包条虫）は深刻な肝障害を引き起こします。",
+        query: "キタキツネ エキノコックス 媒介 予防"
+      },
+      {
+        cat: "第1章 自然",
+        q: "2005年に知床が世界自然遺産に登録された最大の評価理由はどれか。",
+        options: ["国内最大の火山噴火口群", "流氷が育む海洋生態系と陸上生態系の特異な連環および希少動植物の生息", "国内最大の縄文巨石記念物群", "日本一広い湿原面積", "大規模な石狩川のデルタ地形"],
+        ans: 1,
+        exp: "知床は流氷の海洋生態系と陸上生態系の食物連鎖（海と陸の連環）が世界的に高く評価されました。",
+        query: "知床 世界自然遺産 登録基準 海洋陸上連環"
+      },
+      {
+        cat: "第1章 自然",
+        q: "国際的に重要な湿地を保全する「ラムサール条約」に登録された北海道内の湿地数はどれか。",
+        options: ["6か所", "9か所", "12か所", "15か所", "18か所"],
+        ans: 2,
+        exp: "北海道内のラムサール条約登録湿地は、釧路湿原、ウトナイ湖、クッチャロ湖など「12か所」です。",
+        query: "ラムサール条約 北海道 登録湿地 12箇所"
+      },
+      {
+        cat: "第1章 自然",
+        q: "北海道にある「国立公園」の数として正しいものはどれか。",
+        options: ["4か所", "6か所", "8か所", "10か所", "12か所"],
+        ans: 1,
+        exp: "道内には利尻礼文サロベツ、知床、阿寒摩周、大雪山、支笏洞爺、釧路湿原の「6つ」の国立公園があります。",
+        query: "北海道 国立公園 6箇所 一覧"
+      },
+      {
+        cat: "第1章 自然",
+        q: "真冬の極低温下で大気中の水蒸気が微小な氷の結晶となり、日光でキラキラ輝く現象はどれか。",
+        options: ["ブロッケン現象", "ダイヤモンドダスト", "雨氷", "薄明光線", "モルゲンロート"],
+        ans: 1,
+        exp: "氷点下10〜15℃以下の厳しい寒冷時に発生する細氷現象を「ダイヤモンドダスト」と呼びます。",
+        query: "ダイヤモンドダスト 北海道 氷点下 条件"
+      },
+      {
+        cat: "第1章 自然",
+        q: "大雪山旭岳（標高2,291m）など北海道の高山において、本州と比べて森林限界の高度はどうなっているか。",
+        options: ["本州の北アルプス等とほぼ同一である", "本州より約1,000m近く低くなっている", "本州より約1,000m高くなっている", "北海道には森林限界が存在しない", "緯度に関係なく常に標高3,000m以上である"],
+        ans: 1,
+        exp: "北海道は高緯度に位置するため、標高1,000〜1,500m付近でハイマツ帯となり、本州より約1,000m低いです。",
+        query: "北海道 森林限界 標高 本州比較 低い"
+      },
+      {
+        cat: "第1章 自然",
+        q: "支笏湖や洞爺湖の湖沼タイプとして正しい分類はどれか。",
+        options: ["堰止湖", "カルデラ湖", "潟湖（ラグーン）", "人工ダム湖", "断層湖"],
+        ans: 1,
+        exp: "支笏湖、洞爺湖、摩周湖、屈斜路湖はいずれも火山活動による陥没でできた「カルデラ湖」です。",
+        query: "支笏湖 洞爺湖 カルデラ湖 火山"
+      },
+      {
+        cat: "第1章 自然",
+        q: "サロマ湖や風蓮湖のように、砂嘴や砂州によって外海と隔てられてできた湖沼はどれか。",
+        options: ["カルデラ湖", "海跡湖（汽水湖）", "火口原湖", "氷河湖", "断層湖"],
+        ans: 1,
+        exp: "サロマ湖や能取湖、風蓮湖などは、砂嘴の発達により湾が閉塞されてできた「海跡湖（汽水湖）」です。",
+        query: "サロマ湖 海跡湖 汽水湖 砂嘴"
+      },
+      {
+        cat: "第1章 自然",
+        q: "北海道固有の鳥類で、国の特別天然記念物に指定されている釧路湿原のシンボルはどれか。",
+        options: ["シマフクロウ", "タンチョウ", "オオワシ", "クマゲラ", "ウミガラス"],
+        ans: 1,
+        exp: "道鳥でもある「タンチョウ」は国の特別天然記念物に指定されており、釧路湿原等で周年生息します。",
+        query: "タンチョウ 特別天然記念物 道鳥 釧路湿原"
+      },
+      {
+        cat: "第1章 自然",
+        q: "日高山脈のアポイ岳に見られ、世界ジオパークにも認定されている特異な岩石はどれか。",
+        options: ["花崗岩", "かんらん岩（ペリドタイト）", "玄武岩", "石灰岩", "安山岩"],
+        ans: 1,
+        exp: "アポイ岳はマントル物質である「かんらん岩」が地上に露出した山で、固有の高山植物群落が発達しています。",
+        query: "アポイ岳 かんらん岩 ユネスコ世界ジオパーク"
+      },
+      {
+        cat: "第1章 自然",
+        q: "日本最北の国立公園である利尻礼文サロベツ国立公園に含まれない地域はどれか。",
+        options: ["利尻島", "礼文島", "サロベツ原野", "天売島・焼尻島", "抜海海岸"],
+        ans: 3,
+        exp: "天売島・焼尻島は国立公園ではなく「暑寒別天売焼尻国定公園」に属します。",
+        query: "利尻礼文サロベツ国立公園 範囲"
+      },
+
+      // ------------------------------------------
+      // ■ 第2章 基礎情報（10問）
+      // ------------------------------------------
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の総面積（約8万3千km²）は、日本の全国土の約何割を占めているか。",
+        options: ["約1割（10%）", "約2割強（約22%）", "約3割半（約35%）", "約4割弱（約38%）", "約5割（50%）"],
+        ans: 1,
+        exp: "北海道の面積は北方四島を含め約83,424km²で、全国土（約37.8万km²）の約22%（5分の1強）を占めます。",
+        query: "北海道 面積 8万3千 全国の22%"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の「道木・道花・道鳥」の正しい組み合わせはどれか。",
+        options: [
+          "道木：シラカバ ／ 道花：ラベンダー ／ 道鳥：シマフクロウ",
+          "道木：エゾマツ ／ 道花：ハマナス ／ 道鳥：タンチョウ",
+          "道木：トドマツ ／ 道花：スズラン ／ 道鳥：オオワシ",
+          "道木：ハルニレ ／ 道花：ライラック ／ 道鳥：クマゲラ",
+          "道木：イチイ ／ 道花：クロユリ ／ 道鳥：ウミガラス"
+        ],
+        ans: 1,
+        exp: "道木は「エゾマツ」、道花は「ハマナス」、道鳥は「タンチョウ」です。",
+        query: "北海道のシンボル エゾマツ ハマナス タンチョウ"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道内の全179市町村の内訳として正しいものはどれか。",
+        options: ["30市・125町・24村", "35市・129町・15村", "38市・120町・21村", "40市・115町・24村", "32市・132町・15村"],
+        ans: 1,
+        exp: "道内には35市・129町・15村の計179市町村があります。",
+        query: "北海道 市町村数 179 35市 129町 15村"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の産業別道内総生産において、最も高い構成比（約7割強）を占める産業はどれか。",
+        options: ["第1次産業（農業・水産業）", "第2次産業（製造業・建設業）", "第3次産業（サービス・商業・観光等）", "鉱業", "IT情報産業単独"],
+        ans: 2,
+        exp: "北海道経済はサービス業や卸小売業を中心とする第3次産業が約75%以上を占めています。",
+        query: "北海道 産業別総生産 第3次産業 割合"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の製造業（第2次産業）で、製造品出荷額等の構成比が最も大きい業種はどれか。",
+        options: ["電子部品・半導体", "自動車等の輸送機械", "食料品製造業", "石油・石炭製品", "化学工業"],
+        ans: 2,
+        exp: "道内の豊かな一次産品を原料とする食料品製造業が全体の約3割強を占めトップです。",
+        query: "北海道 製造品出荷額 食料品製造業 割合"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の森林面積（約554万ha）は、全国の森林面積の約何割を占めているか。",
+        options: ["約10%", "約15%", "約22%（約4分の1）", "約40%", "約50%"],
+        ans: 2,
+        exp: "道内の森林面積は全国の約22%（およそ4分の1）を占める広大な森林資源を有しています。",
+        query: "北海道 森林面積 全国の割合 22%"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の道庁所在地の緯度（札幌市）とほぼ同緯度にある海外都市はどれか。",
+        options: ["ロンドン・パリ", "ローマ・ウラジオストク・マルセイユ", "ストックホルム・モスクワ", "シドニー・メルボルン", "カイロ・ロサンゼルス"],
+        ans: 1,
+        exp: "札幌市（北緯約43度）は、ヨーロッパのローマやマルセイユ、ロシアのウラジオストク等とほぼ同緯度です。",
+        query: "札幌市 緯度 北緯43度 同緯度の都市"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の耕地面積は全国の約何割を占めているか。",
+        options: ["約10%", "約15%", "約26%（約4分の1強）", "約50%", "約65%"],
+        ans: 2,
+        exp: "北海道の耕地面積は約115万haで、全国（約440万ha）の約26%（約4分の1）を占めています。",
+        query: "北海道 耕地面積 全国の割合 4分の1"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "エネルギー政策の転換により炭鉱の閉山が相次いだ道内で、現在国内唯一坑内掘りを継続している炭鉱はどこか。",
+        options: ["夕張炭鉱", "釧路コールマイン（太平洋炭礦の技術継承）", "三井芦別炭鉱", "空知炭鉱", "幌内炭鉱"],
+        ans: 1,
+        exp: "釧路コールマイン（釧路市）は、国内で唯一坑内掘り炭鉱の保安・採掘技術を継承・操業しています。",
+        query: "釧路コールマイン 国内唯一 坑内採炭"
+      },
+      {
+        cat: "第2章 基礎情報",
+        q: "北海道の周囲を取り囲む3つの海として正しいものはどれか。",
+        options: ["日本海・太平洋・オホーツク海", "日本海・太平洋・東シナ海", "オホーツク海・ベーリング海・日本海", "津軽海峡・日本海・北極海", "太平洋・瀬戸内海・日本海"],
+        ans: 0,
+        exp: "北海道は東・南が太平洋、西が日本海、北東がオホーツク海の3つの海に囲まれています。",
+        query: "北海道 日本海 太平洋 オホーツク海"
+      },
+
+      // ------------------------------------------
+      // ■ 第3章 道南（12問）
+      // ------------------------------------------
+      {
+        cat: "第3章 道南",
+        q: "函館の特別史跡「五稜郭」を設計した蘭学者は誰か。",
+        options: ["榎本武揚", "武田斐三郎", "土方歳三", "島義勇", "栗本鋤雲"],
+        ans: 1,
+        exp: "五稜郭は蘭学者・武田斐三郎がヨーロッパの稜堡式築城法をもとに設計しました。",
+        query: "五稜郭 武田斐三郎 フランス築城方式"
+      },
+      {
+        cat: "第3章 道南",
+        q: "北海道で唯一の城下町であり、福山城（松前城）がある町はどれか。",
+        options: ["江差町", "松前町", "木古内町", "知内町", "上ノ国町"],
+        ans: 1,
+        exp: "松前町は松前藩の城下町として栄えた北海道唯一の城下町です。",
+        query: "松前町 北海道唯一の城下町 福山城 松前城"
+      },
+      {
+        cat: "第3章 道南",
+        q: "江差町が誇る日本海の海運を支えた商船群のストーリーとして日本遺産に認定されているものはどれか。",
+        options: ["北前船寄港地・船主集落", "炭鉄港", "カムイと共に生きる上川アイヌ", "鮭の聖地", "小樽運河回廊"],
+        ans: 0,
+        exp: "江差町や函館市、小樽市などは「荒波を越えた男たちの夢が紡いだ異空間〜北前船寄港地・船主集落〜」に認定されています。",
+        query: "江差町 北前船寄港地 日本遺産"
+      },
+      {
+        cat: "第3章 道南",
+        q: "森町の駅弁として全国的な人気を誇る名物はどれか。",
+        options: ["かきめし", "いかめし", "にしんめし", "ほたてめし", "うにめし"],
+        ans: 1,
+        exp: "函館本線森駅の「いかめし」はイカの胴体にうるち米ともち米を詰めて炊き上げた全国屈指の名物です。",
+        query: "森町 森駅 いかめし 阿部商店"
+      },
+      {
+        cat: "第3章 道南",
+        q: "函館山（標高334m）からの夜景が「扇状」に美しく広がる地形的な要因はどれか。",
+        options: ["カルデラ陥没", "陸繋島と砂州（トンボロ）", "フィヨルド", "溶岩ドーム", "海食崖"],
+        ans: 1,
+        exp: "函館山はかつて島であり、沿岸流で形成された砂州（トンボロ）で陸続きとなった陸繋島です。",
+        query: "函館山 陸繋島 トンボロ 砂州 夜景"
+      },
+      {
+        cat: "第3章 道南",
+        q: "1898年に函館市上湯川に創立された日本最初の女子観想修道院はどれか。",
+        options: ["トラピスチヌ修道院", "トラピスト修道院", "ハリストス正教会", "聖ヨハネ教会", "カトリック元町教会"],
+        ans: 0,
+        exp: "函館市にあるトラピスチヌ修道院は日本初の女子修道院です（男子のトラピスト修道院は北斗市）。",
+        query: "トラピスチヌ修道院 函館 日本最初の女子修道院"
+      },
+      {
+        cat: "第3章 道南",
+        q: "駒ヶ岳の噴火によって川がせき止められてできた大沼・小沼を中心とする国定公園はどれか。",
+        options: ["恵山道立自然公園", "大沼国定公園", "支笏洞爺国立公園", "松前矢越道立自然公園", "野幌森林公園"],
+        ans: 1,
+        exp: "大沼国定公園は、北海道駒ヶ岳の崩壊・堰止によって形成された大沼・小沼・蓴菜沼からなります。",
+        query: "大沼国定公園 駒ヶ岳 堰止湖"
+      },
+      {
+        cat: "第3章 道南",
+        q: "毎年5月下旬〜6月上旬に約60万本のエゾヤマツツジ等が咲き誇る函館市東部の活火山はどれか。",
+        options: ["函館山", "恵山", "横津岳", "毛無山", "砂原岳"],
+        ans: 1,
+        exp: "活火山「恵山（えさん）」の山麓にある恵山つつじ公園ではツツジの花が山肌を真紅に染めます。",
+        query: "恵山 つつじ公園 エゾヤマツツジ 函館"
+      },
+      {
+        cat: "第3章 道南",
+        q: "奥尻島で1993年の北海道南西沖地震の津波被害と復興の教訓を伝える施設はどれか。",
+        options: ["奥尻島津波館", "奥尻防災センター", "青苗復興記念館", "なべつる岩記念館", "南西沖震災アーカイブ館"],
+        ans: 0,
+        exp: "奥尻島青苗地区にある「奥尻島津波館」は、1993年南西沖地震の津波の脅威と復興を後世に伝えています。",
+        query: "奥尻島津波館 北海道南西沖地震 1993年"
+      },
+      {
+        cat: "第3章 道南",
+        q: "新幹線と在来線の接続駅であり、函館駅との間に「はこだてライナー」が走る北海道新幹線の駅はどれか。",
+        options: ["木古内駅", "新函館北斗駅", "奥津軽いまべつ駅", "新八雲駅", "長万部駅"],
+        ans: 1,
+        exp: "北海道新幹線の現行終着駅は北斗市にある「新函館北斗駅」です。",
+        query: "新函館北斗駅 はこだてライナー 北海道新幹線"
+      },
+      {
+        cat: "第3章 道南",
+        q: "八雲町が日本で唯一面している2つの海域の組み合わせはどれか。",
+        options: ["日本海とオホーツク海", "太平洋（内浦湾／噴火湾）と日本海", "津軽海峡と太平洋", "オホーツク海と太平洋", "津軽海峡と日本海"],
+        ans: 1,
+        exp: "八雲町は旧熊石町との合併により、太平洋側（噴火湾）と日本海側の両方に海岸線を持つ日本唯一の町です。",
+        query: "八雲町 太平洋 噴火湾 日本海 両方に面する町"
+      },
+      {
+        cat: "第3章 道南",
+        q: "江差町で毎年8月に開催される、約370年の歴史を誇る北海道最古級の祭礼はどれか。",
+        options: ["姥神大神宮渡御祭", "江差追分全国大会", "松前城下時代まつり", "木古内みそぎ祭", "函館港まつり"],
+        ans: 0,
+        exp: "姥神大神宮（うばがみだいじんぐう）渡御祭は、豪華絢爛な13基の山車（ヤマ）が町内を巡行する伝統祭礼です。",
+        query: "姥神大神宮渡御祭 江差町 北海道最古の祭り"
+      },
+
+      // ------------------------------------------
+      // ■ 第3章 道央（16問）
+      // ------------------------------------------
+      {
+        cat: "第3章 道央",
+        q: "明治後期〜大正期に日本銀行旧小樽支店などが集まり繁栄した小樽の当時の通称はどれか。",
+        options: ["北のパリ", "北のウォール街", "東洋のベニス", "石狩のマンハッタン", "銀鱗の都"],
+        ans: 1,
+        exp: "海運と金融の中心として銀行支店が軒を連ねたことから「北のウォール街」と呼ばれました。",
+        query: "小樽 北のウォール街 日本銀行旧小樽支店"
+      },
+      {
+        cat: "第3章 道央",
+        q: "札幌市の奥座敷・定山渓温泉を開拓した修験僧は誰か。",
+        options: ["円空", "美泉定山", "島義勇", "松浦武四郎", "菅江真澄"],
+        ans: 1,
+        exp: "修験僧・美泉定山（みいずみ じょうざん）がアイヌの人々の案内で源泉を見出し湯治場を開きました。",
+        query: "定山渓温泉 美泉定山 開湯"
+      },
+      {
+        cat: "第3章 道央",
+        q: "2020年に白老町ポロト湖畔に誕生した「民族共生象徴空間」の愛称はどれか。",
+        options: ["ピリカコタン", "ウポポイ", "イランカラプテ", "コタンノミ", "サロルンカムイ"],
+        ans: 1,
+        exp: "ウポポイ（民族共生象徴空間）には国立アイヌ民族博物館や国立民族共生公園が設置されています。",
+        query: "ウポポイ 民族共生象徴空間 白老町"
+      },
+      {
+        cat: "第3章 道央",
+        q: "ニセコアンヌプリ山麓に広がる4大スキー場の総称はどれか。",
+        options: ["ニセコフリーダム", "ニセコユナイテッド", "ニセコオールスターズ", "ニセコリゾートフォー", "ニセコパウダースノークラブ"],
+        ans: 1,
+        exp: "HANAZONO、グラン・ヒラフ、ビレッジ、アンヌプリの4スキー場を「ニセコユナイテッド」と呼びます。",
+        query: "ニセコユナイテッド 4大スキー場"
+      },
+      {
+        cat: "第3章 道央",
+        q: "羊蹄山からの清冽な地下水が日量約8万t湧き出す京極町の名所はどれか。",
+        options: ["ふきだし公園", "名水ふれあいパーク", "羊蹄湧水プラザ", "蝦夷富士親水園", "京極ウォーターガーデン"],
+        ans: 0,
+        exp: "京極町の「ふきだし公園（道の駅名水の郷きょうごく）」は日本名水百選に選定されています。",
+        query: "京極町 ふきだし公園 羊蹄山 湧水"
+      },
+      {
+        cat: "第3章 道央",
+        q: "札幌市のクラーク博士像があり、「少年よ、大志を抱け」のポーズで名高い観光地はどれか。",
+        options: ["大通公園西11丁目", "さっぽろ羊ヶ丘展望台", "モエレ沼公園", "中島公園", "旭山記念公園"],
+        ans: 1,
+        exp: "さっぽろ羊ヶ丘展望台の丘の上に、右手を掲げた全身の「丘の上のクラーク像」が立っています。",
+        query: "さっぽろ羊ヶ丘展望台 クラーク像 少年よ大志を抱け"
+      },
+      {
+        cat: "第3章 道央",
+        q: "彫刻家イサム・ノグチがマスタープランを手掛け、「全体をひとつの彫刻作品とする」公園はどれか。",
+        options: ["モエレ沼公園", "大通公園", "真駒内公園", "前田森林公園", "百合が原公園"],
+        ans: 0,
+        exp: "モエレ沼公園はゴミ処理場の埋立跡地を再生し、ガラスのピラミッドやモエレ山を配したアートパークです。",
+        query: "モエレ沼公園 イサムノグチ ガラスのピラミッド"
+      },
+      {
+        cat: "第3章 道央",
+        q: "余市町にあるウイスキーの聖地で、竹鶴政孝がスコットランドに似た気候を求めて創設した蒸溜所はどれか。",
+        options: ["サントリー山崎蒸溜所", "ニッカウヰスキー余市蒸溜所", "キリン富士御殿場蒸溜所", "本坊酒造マルス蒸溜所", "厚岸蒸溜所"],
+        ans: 1,
+        exp: "日本のウイスキーの父・竹鶴政孝が1934年に大日本果汁（現ニッカウヰスキー）として創業しました。",
+        query: "ニッカウヰスキー 余市蒸溜所 竹鶴政孝"
+      },
+      {
+        cat: "第3章 道央",
+        q: "夕張市でかつて炭鉱住宅街だった歴史を物語り、名物「カレーそば」でも親しまれる銘菓や特産はどれか。",
+        options: ["夕張メロン", "らいでんメロン", "富良野メロン", "アサヒメロン", "月形メロン"],
+        ans: 0,
+        exp: "夕張市は炭鉱の閉山後、鮮やかなオレンジ色の果肉を持つ「夕張メロン」を全国ブランドに育て上げました。",
+        query: "夕張メロン 夕張市 特産品"
+      },
+      {
+        cat: "第3章 道央",
+        q: "日本最初の近代炭鉱・幌内炭鉱の開発に伴い、1882年に開通した道内最初の鉄道はどれか。",
+        options: ["官営幌内鉄道（手宮〜札幌〜幌内）", "函館本線", "留萌本線", "夕張線", "根室本線"],
+        ans: 0,
+        exp: "石炭輸送のため、手宮（小樽）〜札幌〜幌内（三笠）間に北海道初の鉄道が開通しました。",
+        query: "官営幌内鉄道 1882年 手宮 幌内 クロフォード"
+      },
+      {
+        cat: "第3章 道央",
+        q: "砂川市を通る国道12号沿いにスイーツ店が集積していることから名付けられた愛称はどれか。",
+        options: ["砂川シュガーロード", "すながわスイートロード", "北海道ケーキ街道", "パティスリーウェイ", "甘味ストリート"],
+        ans: 1,
+        exp: "砂川市内には北菓楼やソメスサドルなど有名菓子店が点在し「すながわスイートロード」と呼ばれます。",
+        query: "すながわスイートロード 砂川市 国道12号"
+      },
+      {
+        cat: "第3章 道央",
+        q: "透明度が高く「水質日本一」に幾度も選ばれ、冬の「氷濤まつり」で知られるカルデラ湖はどれか。",
+        options: ["洞爺湖", "支笏湖", "倶多楽湖", "屈斜路湖", "大沼"],
+        ans: 1,
+        exp: "支笏湖は日本最北の不凍湖で、国内有数の深度と極めて高い透明度（支笏湖ブルー）を誇ります。",
+        query: "支笏湖 水質日本一 不凍湖 氷濤まつり"
+      },
+      {
+        cat: "第3章 道央",
+        q: "登別温泉の象徴で、毎分約3,000リットルもの多種多様な泉質が湧出する巨大な爆裂火口跡はどれか。",
+        options: ["大湯沼", "地獄谷", "硫黄山", "ポッケ", "昭和新山"],
+        ans: 1,
+        exp: "登別の「地獄谷」は日和山の噴火活動でできた火口跡で、立ち上る白煙と強い硫黄臭が特徴です。",
+        query: "登別温泉 地獄谷 爆裂火口跡"
+      },
+      {
+        cat: "第3章 道央",
+        q: "1943年からの火山活動で麦畑が隆起してわずか2年で誕生した、三松正夫が記録した山はどれか。",
+        options: ["有珠山", "昭和新山", "恵山", "樽前山", "駒ヶ岳"],
+        ans: 1,
+        exp: "昭和新山は特別天然記念物で、郵便局長・三松正夫が成長過程を精緻に記録（新山隆起図）しました。",
+        query: "昭和新山 三松正夫 新山隆起図 特別天然記念物"
+      },
+      {
+        cat: "第3章 道央",
+        q: "2008年7月に「主要国首脳会議（サミット）」が開催された洞爺湖畔の高台に建つリゾートホテルはどれか。",
+        options: ["ザ・ウィンザーホテル洞爺 リゾート＆スパ", "ルスツリゾートホテル", "ニセコヒルトンビレッジ", "支笏湖第一寶亭留", "定山渓ビューホテル"],
+        ans: 0,
+        exp: "北海道洞爺湖サミットは「ザ・ウィンザーホテル洞爺 リゾート＆スパ」を主会場に開かれました。",
+        query: "北海道洞爺湖サミット 2008年 ザ・ウィンザーホテル洞爺"
+      },
+      {
+        cat: "第3章 道央",
+        q: "千歳川で秋にサケを捕獲するために設置される、水車を利用した捕獲装置の名称はどれか。",
+        options: ["インディアン水車", "フィッシャーホイール", "簗（やな）水車", "サーモンローター", "定置型回漕水車"],
+        ans: 0,
+        exp: "道の駅サーモンパーク千歳裏の千歳川に設置される「インディアン水車」は秋の風物詩です。",
+        query: "インディアン水車 千歳川 サケ捕獲"
+      },
+
+      // ------------------------------------------
+      // ■ 第3章 道北（14問）
+      // ------------------------------------------
+      {
+        cat: "第3章 道北",
+        q: "旭川市の旭山動物園が一躍脚光を浴びた、動物本来の行動や生態を引き出す独自の展示手法はどれか。",
+        options: ["形態展示", "行動展示", "生態パノラマ展示", "サファリ放し飼い展示", "ジオラマ展示"],
+        ans: 1,
+        exp: "水中を飛ぶように泳ぐペンギン館など、動物の特性を活かした「行動展示」で全国区の人気となりました。",
+        query: "旭山動物園 行動展示 特徴"
+      },
+      {
+        cat: "第3章 道北",
+        q: "美瑛町の丘陵地帯が「パッチワークの路」と呼ばれる美しい景観になった背景はどれか。",
+        options: ["自治体が観光用に芝生を着色した", "連作障害を防ぐため、麦・芋・豆・ビートを年ごとに輪作している", "火山灰の成分が筋状に堆積した", "農地ごとに異なる色のビニールハウスを建てた", "大規模な花卉栽培のみを行っている"],
+        ans: 1,
+        exp: "連作障害を防ぐための農家の「輪作」体系によって、畑ごとに異なる色彩のパッチワークが生まれます。",
+        query: "美瑛 パッチワークの路 輪作 景観"
+      },
+      {
+        cat: "第3章 道北",
+        q: "美瑛町を一躍全国的に有名にした、丘の風景写真を撮り続けた写真家・前田真三のギャラリーはどれか。",
+        options: ["拓真館", "丘の彩館", "美瑛フォトギャラリー", "光の館", "風の丘ミュージアム"],
+        ans: 0,
+        exp: "写真家・前田真三が旧千代田小学校跡地に開設した「拓真館」は美瑛観光の原点となりました。",
+        query: "拓真館 前田真三 美瑛 写真ギャラリー"
+      },
+      {
+        cat: "第3章 道北",
+        q: "十勝岳の防災工事によって偶発的に生まれ、神秘的なコバルトブルーの水面で有名な美瑛町の名所はどれか。",
+        options: ["青い池", "神の子池", "オンネトー", "チミケップ湖", "オコタンペ湖"],
+        ans: 0,
+        exp: "美瑛町の「白金青い池」は、アルミニウム等を含む地下水と美瑛川の水が混ざりコロイドが光を散乱して青く見えます。",
+        query: "白金青い池 美瑛 コバルトブルー"
+      },
+      {
+        cat: "第3章 道北",
+        q: "富良野市のラベンダー観光の草分けであり、広大な紫の丘で知られる中富良野町の農園はどれか。",
+        options: ["ファーム富田", "かんのファーム", "ぜるぶの丘", "フラワーランドかみふらの", "彩香の里"],
+        ans: 0,
+        exp: "「ファーム富田」は国鉄のカレンダーで紹介されたことを機に、富良野ラベンダー観光の代名詞となりました。",
+        query: "ファーム富田 中富良野 ラベンダー"
+      },
+      {
+        cat: "第3章 道北",
+        q: "富良野を舞台とした倉本聰脚本の名作ドラマで、「麓郷の森」や「石の家」がロケ地となっている作品はどれか。",
+        options: ["北の国から", "優しい時間", "風のガーデン", "やすらぎの郷", "遥かなる山の呼び声"],
+        ans: 0,
+        exp: "ドラマ『北の国から』のロケ地である黒板五郎の丸太小屋や石の家は今も多くのファンが訪れます。",
+        query: "北の国から 麓郷の森 石の家 倉本聰 富良野"
+      },
+      {
+        cat: "第3章 道北",
+        q: "高級ラム肉として名高い「サフォーク羊」のまちとして知られる上川北部の市はどれか。",
+        options: ["士別市", "名寄市", "深川市", "留萌市", "富良野市"],
+        ans: 0,
+        exp: "士別市は「羊と雲の丘」を中心に顔の黒いサフォーク羊の大規模飼育を行っています。",
+        query: "士別市 サフォーク羊 羊と雲の丘"
+      },
+      {
+        cat: "第3章 道北",
+        q: "名寄市や幌加内町など厳寒の内陸地で、晴れた極寒の朝に空気中の水滴が凍り光の柱のように輝く現象はどれか。",
+        options: ["サンピラー（太陽柱）", "ブロッケン現象", "緑の光芒（グリーンフラッシュ）", "オーロラ", "幻日環"],
+        ans: 0,
+        exp: "名寄市はサンピラー（太陽柱）現象がよく見られる厳寒の内陸盆地として知られます。",
+        query: "名寄市 サンピラー 太陽柱"
+      },
+      {
+        cat: "第3章 道北",
+        q: "日本最北端の岬であり、「日本最北端の地の碑」が建つ稚内市の岬はどれか。",
+        options: ["ノシャップ岬", "宗谷岬", "知床岬", "納沙布岬", "襟裳岬"],
+        ans: 1,
+        exp: "北緯45度31分に位置する日本の最北端は「宗谷岬」です（ノシャップ岬は稚内市街西側の岬）。",
+        query: "宗谷岬 日本最北端の地の碑 稚内市"
+      },
+      {
+        cat: "第3章 道北",
+        q: "稚内港にある、強風と荒波を防ぐために昭和初期に建設されたアーチ型の半ドーム状防波堤はどれか。",
+        options: ["稚内港北防波堤ドーム", "北海アーチピア", "稚内波除けアーケード", "宗谷シェルター", "防波アーチ回廊"],
+        ans: 0,
+        exp: "稚内港北防波堤ドームは古代ローマ建築を思わせる70本の円柱が並ぶ北海道遺産です。",
+        query: "稚内港北防波堤ドーム 北海道遺産"
+      },
+      {
+        cat: "第3章 道北",
+        q: "宗谷丘陵に見られる、ウルム氷期の凍結破砕作用によって形成されたなだらかな地形はどれか。",
+        options: ["周氷河地形", "カルスト地形", "リアス海岸", "メサ地形", "河岸段丘"],
+        ans: 0,
+        exp: "宗谷丘陵には氷河期に地表面の凍結・融解が繰り返されてできた「周氷河地形（北海道遺産）」が広がります。",
+        query: "宗谷丘陵 周氷河地形 ウルム氷期 北海道遺産"
+      },
+      {
+        cat: "第3章 道北",
+        q: "羽幌町沖合にあり、「オロロン鳥」の名で親しまれるウミガラスの国内唯一の繁殖地である島はどれか。",
+        options: ["天売島", "焼尻島", "利尻島", "礼文島", "奥尻島"],
+        ans: 0,
+        exp: "天売島（てうりとう）は海鳥の楽園で、絶滅危惧種ウミガラス（オロロン鳥）の貴重な繁殖地です。",
+        query: "天売島 ウミガラス オロロン鳥 羽幌町"
+      },
+      {
+        cat: "第3章 道北",
+        q: "「利尻富士」とも呼ばれ、日本百名山の起点にも挙げられている利尻島の主峰はどれか。",
+        options: ["利尻山（標高1,721m）", "礼文岳", "天塩岳", "暑寒別岳", "羊蹄山"],
+        ans: 0,
+        exp: "海上にそびえる円錐形の秀峰・利尻山（1,721m）はその姿から利尻富士と呼ばれます。",
+        query: "利尻山 利尻富士 標高1721m 日本百名山"
+      },
+      {
+        cat: "第3章 道北",
+        q: "高山植物の宝庫で「花の浮島」と称され、レブンアツモリソウ等の固有種が咲く島はどれか。",
+        options: ["礼文島", "利尻島", "天売島", "焼尻島", "奥尻島"],
+        ans: 0,
+        exp: "礼文島（れぶんとう）は冷涼な気候により平地でも高山植物が咲き乱れ「花の浮島」と呼ばれます。",
+        query: "礼文島 花の浮島 レブンアツモリソウ"
+      },
+
+      // ------------------------------------------
+      // ■ 第3章 オホーツク（12問）
+      // ------------------------------------------
+      {
+        cat: "第3章 オホーツク",
+        q: "網走市で冬期に運行される流氷観光砕氷船の名称はどれか。",
+        options: ["おーろら", "ガリンコ号", "しれとこ丸", "オホーツクブルー", "カムイ号"],
+        ans: 0,
+        exp: "網走港から出航する大型砕氷船は「おーろら」です（ガリンコ号は紋別市）。",
+        query: "網走 流氷観光砕氷船 おーろら 道の駅流氷街道網走"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "紋別市で冬期に流氷を巨大なスクリューで削り進む流氷砕氷船の名称はどれか。",
+        options: ["ガリンコ号", "おーろら", "つがる", "白瀬号", "オホーツクタワー号"],
+        ans: 0,
+        exp: "紋別の「ガリンコ号」は先端に装備されたアルキメディアンスクリューで氷を砕いて進みます。",
+        query: "紋別 ガリンコ号 アルキメディアンスクリュー"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "秋（9〜10月）になると塩湿地が一面深紅に染まる能取湖畔・卯原内の塩生植物はどれか。",
+        options: ["サンゴ草（アッケシソウ）", "ハマナス", "エゾリンドウ", "ヒガンバナ", "ツツジ"],
+        ans: 0,
+        exp: "網走市能取湖畔の卯原内サンゴ草群落は日本最大級で、紅葉時期には真っ赤な絨毯が広がります。",
+        query: "能取湖 卯原内 サンゴ草 アッケシソウ"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "北見市留辺蘂町の道の駅おんねゆ温泉にあり、「日本初の滝つぼ水槽」や「世界初の冬に凍る水槽」で知られる施設はどれか。",
+        options: ["北の大地の水族館（山の水族館）", "おたる水族館", "サンピアザ水族館", "登別マリンパークニクス", "千歳サケのふるさと館"],
+        ans: 0,
+        exp: "「北の大地の水族館（山の水族館）」は淡水魚専門水族館で、巨大なイトウの飼育や凍る水槽が有名です。",
+        query: "北の大地の水族館 山の水族館 おんねゆ温泉 イトウ"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "昭和初期まで世界市場の約7割を占めていた、北見市を代表する特産農産物はどれか。",
+        options: ["ハッカ（薄荷）", "甜菜（ビート）", "ホップ", "亜麻", "除虫菊"],
+        ans: 0,
+        exp: "北見ハッカは戦前に世界のハッカ市場の70%以上を生産し、北見ハッカ記念館にその歴史が残ります。",
+        query: "北見ハッカ 世界シェア7割 薄荷記念館"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "北海道で最も面積が広い市町村はどれか（北方領土を除く）。",
+        options: ["北見市", "釧路市", "足寄町", "別海町", "旭川市"],
+        ans: 0,
+        exp: "北見市は旧端野町・常呂町・留辺蘂町との合併により、道内市町村で最大の面積（約1,427km²）を誇ります。",
+        query: "北見市 北海道で一番面積の大きい市町村"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "知床五湖の地上遊歩道において、ヒグマ活動期（5月上旬〜7月末）に散策する際の必須要件はどれか。",
+        options: ["銃を携行したハンターの同伴", "登録引率者（認定ガイド）の引率によるツアー参加（有料）", "自転車の利用", "単独での自由散策", "鈴の携行のみ"],
+        ans: 1,
+        exp: "ヒグマ活動期はヒグマとの遭遇回避と植生保護のため、認定ガイドツアー（有料）の受講・同伴が義務付けられています。",
+        query: "知床五湖 ヒグマ活動期 登録引率者 ガイドツアー"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "清里町の摩周湖の地下水が湧き出ているとされ、コバルトブルーに澄み渡る幻想的な湧水池はどれか。",
+        options: ["神の子池", "青い池", "オンネトー", "春採湖", "鏡池"],
+        ans: 0,
+        exp: "清里町の「神の子池」は摩周湖（カムイト＝神の湖）の伏流水が湧き出ていると信じられたことから命名されました。",
+        query: "清里町 神の子池 摩周湖 伏流水"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "オホーツク海沿岸に広がる、北海道で最大、国内第3位の面積を誇る湖はどれか。",
+        options: ["サロマ湖", "屈斜路湖", "支笏湖", "洞爺湖", "風蓮湖"],
+        ans: 0,
+        exp: "サロマ湖は約152km²の面積を有し、琵琶湖・霞ヶ浦に次ぐ日本第3位（北海道内第1位）の広大な汽水湖です。",
+        query: "サロマ湖 面積 北海道第1位 全国第3位 汽水湖"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "サロマ湖とオホーツク海を隔てる砂州上にあり、オホーツク海側最大の海岸草原が広がる花の名所はどれか。",
+        options: ["ワッカ原生花園", "小清水原生花園", "はぼろバラ園", "能取岬花園", "フラワーランド"],
+        ans: 0,
+        exp: "「ワッカ原生花園」はサロマ湖の砂州にあり、ハマナスやエゾスカシユリなどが咲き競う北海道遺産です。",
+        query: "ワッカ原生花園 サロマ湖 北海道遺産"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "5月中旬〜6月上旬にかけて約200品種120万本のチューリップが咲く上湧別町の名所はどれか。",
+        options: ["かみゆうべつチューリップ公園", "滝上芝ざくら公園", "ひがしもこと芝桜公園", "大雪森のガーデン", "ファーム富田"],
+        ans: 0,
+        exp: "湧別町（旧上湧別町）の「かみゆうべつチューリップ公園」はオランダ風車がシンボルの広大な花園です。",
+        query: "かみゆうべつチューリップ公園 湧別町"
+      },
+      {
+        cat: "第3章 オホーツク",
+        q: "女満別空港が位置し、メルヘンの丘やひがしもこと芝桜公園で知られる町はどれか。",
+        options: ["大空町", "美幌町", "斜里町", "訓子府町", "津別町"],
+        ans: 0,
+        exp: "女満別町と東藻琴村が合併して誕生した「大空町（おおぞらちょう）」に女満別空港があります。",
+        query: "大空町 女満別空港 メルヘンの丘 ひがしもこと芝桜公園"
+      },
+
+      // ------------------------------------------
+      // ■ 第3章 釧路・根室（10問）
+      // ------------------------------------------
+      {
+        cat: "第3章 釧路・根室",
+        q: "別海町から標津町に伸びる全長約28kmの日本最大の砂嘴はどれか。",
+        options: ["野付半島", "根室半島", "知床半島", "絵鞆半島", "積丹半島"],
+        ans: 0,
+        exp: "野付半島は日本最大の砂嘴（さし）で、立ち枯れたトドマツの「トドワラ」や北海シマエビ漁で有名です。",
+        query: "野付半島 日本最大の砂嘴 トドワラ 別海町"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "釧路港のシンボルであり、春夏秋冬を表す彫刻「四季の像」が欄干に立つ橋はどれか。",
+        options: ["幣舞橋（ぬさまいばし）", "旭橋", "白鳥大橋", "十勝中央大橋", "豊平橋"],
+        ans: 0,
+        exp: "釧路市の「幣舞橋」は夕日の名所としても知られ、舟越保武ら日本を代表する彫刻家の「四季の像」があります。",
+        query: "幣舞橋 四季の像 釧路 夕日"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "釧路湿原を縦断し、釧路〜塘路・標茶間をゆっくり走る人気の観光列車はどれか。",
+        options: ["くしろ湿原ノロッコ号", "富良野・美瑛ノロッコ号", "SL冬の湿原号", "流氷物語号", "花たび そうや号"],
+        ans: 0,
+        exp: "展望客車を備えた「くしろ湿原ノロッコ号」は湿原の雄大な眺めを間近に楽しめます。",
+        query: "くしろ湿原ノロッコ号 釧路湿原 観光列車"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "国の特別天然記念物「阿寒湖のマリモ」を間近に観察できるチュウルイ島の施設はどれか。",
+        options: ["マリモ展示観察センター", "阿寒エコミュージアム", "イコロ", "釧路湿原野生生物保護センター", "まりも館"],
+        ans: 0,
+        exp: "阿寒湖の遊覧船で行くチュウルイ島には「マリモ展示観察センター」があります。",
+        query: "マリモ展示観察センター 阿寒湖 チュウルイ島"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "世界第2位の透明度を記録したことがあり、注ぎ込む川も流れ出る川もない神秘のカルデラ湖はどれか。",
+        options: ["摩周湖", "屈斜路湖", "阿寒湖", "洞爺湖", "支笏湖"],
+        ans: 0,
+        exp: "摩周湖はバイカル湖に次ぐ透明度を誇り、急峻な火口壁に囲まれた注出入河川のないカルデラ湖です。",
+        query: "摩周湖 透明度 カルデラ湖 カムイト"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "国内最大のカルデラ湖であり、湖の中央に中島が浮かぶ弟子屈町の湖はどれか。",
+        options: ["屈斜路湖", "摩周湖", "阿寒湖", "サロマ湖", "塘路湖"],
+        ans: 0,
+        exp: "屈斜路湖（くっしゃろこ）は面積約79.3km²で、日本最大のカルデラ湖です。",
+        query: "屈斜路湖 日本最大のカルデラ湖 弟子屈町"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "北方領土の歯舞群島や貝殻島を指呼の間に望み、「四島の架け橋」が建つ本土最東端の岬はどれか。",
+        options: ["納沙布岬", "襟裳岬", "宗谷岬", "愛冠岬", "地球岬"],
+        ans: 0,
+        exp: "根室半島の先端にある「納沙布（のさっぷ）岬」は本土最東端の岬です。",
+        query: "納沙布岬 本土最東端 根室 四島の架け橋"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "根室市のご当地グルメで、バターライスの上にポークカツを乗せデミグラスソースをかけた料理はどれか。",
+        options: ["エスカロップ", "スパカツ", "豚丼", "チャップ丼", "ハシドポーク"],
+        ans: 0,
+        exp: "根室発祥の「エスカロップ（エスカ）」は筍入りバターライスとカツが調和した洋食です（スパカツは釧路）。",
+        query: "エスカロップ 根室 ご当地グルメ"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "中標津町にあり、標高270mの山頂から「地球が丸く見える330度の地平線パノラマ」が広がる展望台はどれか。",
+        options: ["開陽台", "多和平", "細岡展望台", "美幌峠", "裏摩周展望台"],
+        ans: 0,
+        exp: "中標津町の「開陽台」は地平線が丸く見える絶景スポットとしてライダーや観光客の聖地です。",
+        query: "開陽台 中標津町 地球が丸く見える 地平線"
+      },
+      {
+        cat: "第3章 釧路・根室",
+        q: "野付湾でアマモを傷つけないよう風を帆に受けて浅瀬を進む、伝統的なエビ漁船はどれか。",
+        options: ["打瀬舟（うたせぶね）", "ヤンマー船", "笹舟", "トロール船", "川舟"],
+        ans: 0,
+        exp: "野付湾の「打瀬舟」による北海シマエビ漁は、白い三角帆を張って進む初夏と秋の北海道遺産です。",
+        query: "打瀬舟 野付湾 北海シマエビ 北海道遺産"
+      },
+
+      // ------------------------------------------
+      // ■ 第3章 十勝（10問）
+      // ------------------------------------------
+      {
+        cat: "第3章 十勝",
+        q: "地下深くの太古の植物層（亜炭層）を通って湧き出る、十勝川温泉の世界的にも希少な泉質はどれか。",
+        options: ["モール温泉", "強食塩泉", "酸性緑礬泉", "放射能泉", "重曹泉"],
+        ans: 0,
+        exp: "モール温泉は植物性の有機物（フミン物質）を含み、天然の化粧水のようなまろやかな肌触りが特徴です。",
+        query: "十勝川温泉 モール温泉 北海道遺産"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "上士幌町にあり、日本一広い公共牧場（約1,700ha、東京ドーム約358個分）を誇る牧場はどれか。",
+        options: ["ナイタイ高原牧場", "八千代公共育成牧場", "宗谷牧場", "多和平牧場", "天売牧場"],
+        ans: 0,
+        exp: "上士幌町の「ナイタイ高原牧場」は日本一広い公共牧場で、山頂にナイタイテラスがあります。",
+        query: "ナイタイ高原牧場 日本一広い牧場 上士幌町"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "旧国鉄士幌線の廃線跡に残り、季節によって糠平湖の水位変動で見え隠れするコンクリートアーチ橋はどれか。",
+        options: ["タウシュベツ川橋梁", "第一音更川橋梁", "幌加橋梁", "三ノ沢橋梁", "勇足橋梁"],
+        ans: 0,
+        exp: "「タウシュベツ川橋梁（めがね橋）」は幻の橋と呼ばれ、国鉄士幌線アーチ橋群として北海道遺産に選定されています。",
+        query: "タウシュベツ川橋梁 士幌線 幻の橋 北海道遺産"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "大雪山国立公園内唯一の天然湖で、オショロコマが生息し「しかりべつ湖コタン」が作られる湖はどれか。",
+        options: ["然別湖（しかりべつこ）", "糠平湖", "サホロ湖", "オンネトー", "チミケップ湖"],
+        ans: 0,
+        exp: "標高810mの高地にある然別湖は道内最高所の天然湖で、冬は湖上に雪と氷の村「しかりべつ湖コタン」が誕生します。",
+        query: "然別湖 しかりべつ湖コタン オショロコマ"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "帯広市で明治時代に開拓の祖・依田勉三率いる晩成社が入植した際、甘辛いタレで豚肉を焼いたのが起源とされる名物料理はどれか。",
+        options: ["豚丼", "ジンギスカン", "スパカツ", "ちゃんこ鍋", "美唄焼き鳥"],
+        ans: 0,
+        exp: "帯広の「豚丼」は、洋食のうなぎ丼のタレをヒントに豚ロース肉を香ばしく焼き上げた十勝名物です。",
+        query: "帯広 豚丼 発祥 晩成社"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "ばんえい競馬（ばんえい十勝）が世界で唯一通年開催されている競馬場はどこか。",
+        options: ["帯広競馬場", "札幌競馬場", "函館競馬場", "門別競馬場", "旭川競馬場"],
+        ans: 0,
+        exp: "開拓馬の力比べにルーツを持つ世界で唯一の「ばんえい競馬」は帯広競馬場でのみ開催されています。",
+        query: "ばんえい競馬 帯広競馬場 世界唯一"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "更別村が発祥の地とされ、十勝地方を中心に高齢者から子どもまで全国に普及したコミュニティスポーツはどれか。",
+        options: ["パークゴルフ", "グラウンドゴルフ", "ゲートボール", "カーリング", "バウンドテニス"],
+        ans: 0,
+        exp: "幕別町が発祥の地である「パークゴルフ」は誰でも手軽に楽しめるスポーツとして誕生しました。",
+        query: "パークゴルフ 発祥 幕別町"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "陸別町で毎年2月の厳寒期に開催され、氷点下20℃以下の極寒の中で一晩を耐え抜くユニークな祭りはどれか。",
+        options: ["しばれフェスティバル", "氷瀑まつり", "氷濤まつり", "冬まつり", "コタン祭"],
+        ans: 0,
+        exp: "日本一寒い町・陸別町で開催される「しばれフェスティバル」ではバルーンマンションでの耐寒体験が名物です。",
+        query: "しばれフェスティバル 陸別町 人間耐寒テスト"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "十勝池田町が昭和30年代に財政再建をかけてブドウ栽培から手がけ、全国初の自治体直営ワイナリーとなった施設はどれか。",
+        options: ["池田町ブドウ・ブドウ酒研究所（ワイン城）", "ふらのワインハウス", "十勝ワインファクトリー", "余市ワイナリー", "小樽ワインギャラリー"],
+        ans: 0,
+        exp: "池田町の「ワイン城」は寒冷地に適した独自の清見種などを開発し、「十勝ワイン」を生み出しました。",
+        query: "池田町 ワイン城 十勝ワイン ブドウブドウ酒研究所"
+      },
+      {
+        cat: "第3章 十勝",
+        q: "民間ロケット打ち上げ基地（北海道スペースポート／HAPO）の整備が進む航空宇宙産業の町はどれか。",
+        options: ["大樹町", "広尾町", "幕別町", "芽室町", "音更町"],
+        ans: 0,
+        exp: "大樹町は多目的航空公園を有し、民間宇宙ベンチャーのロケット発射基地として脚光を浴びています。",
+        query: "大樹町 北海道スペースポート 宇宙の町 ロケット"
+      },
+
+      // ------------------------------------------
+      // ■ 第4章 歴史（16問）
+      // ------------------------------------------
+      {
+        cat: "第4章 歴史",
+        q: "出土した黒曜石の細石刃や石器群が2023年に北海道内初の旧石器時代「国宝」に指定された遠軽町の遺跡はどれか。",
+        options: ["白滝遺跡群", "ピリカ遺跡", "中野遺跡", "湯の里遺跡", "柏台遺跡"],
+        ans: 0,
+        exp: "遠軽町白滝遺跡群の黒曜石石器群は、質・量ともに圧倒的であり道内初の旧石器国宝に指定されました。",
+        query: "白滝遺跡群 黒曜石 国宝 遠軽町"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "函館市著保内野遺跡から出土し、北海道で最初の国宝に指定された縄文後期の遺物はどれか。",
+        options: ["中空土偶（愛称：カックウ）", "遮光器土偶", "漆塗り土器", "翡翠大珠", "板状土偶"],
+        ans: 0,
+        exp: "著保内野（ちょぼないの）遺跡の「中空土偶（カックウ）」は函館市縄文文化交流センターに展示されています。",
+        query: "著保内野遺跡 中空土偶 カックウ 国宝"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "網走川河口にあり、オホーツク海沿岸で栄えた北方系海洋狩猟民族の生活を伝える国指定史跡はどれか。",
+        options: ["モヨロ貝塚", "北黄金貝塚", "入江貝塚", "キウス周堤墓群", "美々貝塚"],
+        ans: 0,
+        exp: "網走市の「モヨロ貝塚」は5〜12世紀にサハリン方面から伝わったオホーツク文化の代表的遺跡です。",
+        query: "モヨロ貝塚 オホーツク文化 網走"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "1457年、和人の鍛冶屋とアイヌ青年の小刀を巡る争いから端を発し、首長コシャマインが蜂起した戦いはどれか。",
+        options: ["コシャマインの戦い", "シャクシャインの戦い", "クナシリ・メナシの戦い", "箱館戦争", "寛政の乱"],
+        ans: 0,
+        exp: "1457年、コシャマインが和人館（十二館）を攻撃し、武田信広（松前家の祖）によって鎮圧されました。",
+        query: "コシャマインの戦い 1457年 和人館 武田信広"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "1669年、松前藩による不公正な交易制度等に対して静内の首長が率いて蜂起した戦いはどれか。",
+        options: ["シャクシャインの戦い", "コシャマインの戦い", "クナシリ・メナシの戦い", "戊辰戦争", "場所請負蜂起"],
+        ans: 0,
+        exp: "1669年、シズナイの首長シャクシャインが全蝦夷地のアイヌに呼びかけて松前藩と戦いました。",
+        query: "シャクシャインの戦い 1669年 松前藩 静内"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "1789年、根室・国後方面の場所請負人の過酷な労働強制に対してアイヌ民族が蜂起した最後の戦いはどれか。",
+        options: ["クナシリ・メナシの戦い", "シャクシャインの戦い", "コシャマインの戦い", "天保の騒動", "箱館事件"],
+        ans: 0,
+        exp: "1789年（寛政元年）に起きた「クナシリ・メナシの戦い」を機に、幕府は蝦夷地への関心を高めました。",
+        query: "クナシリ・メナシの戦い 1789年 寛政"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "樺太を探査して大陸との間にある海峡を実証し、世界地図にその名を残した幕府の隠密・探検家は誰か。",
+        options: ["間宮林蔵", "伊能忠敬", "最上徳内", "近藤重蔵", "松浦武四郎"],
+        ans: 0,
+        exp: "間宮林蔵は樺太が島であることを確かめ、シーボルトによって「間宮海峡」と世界に紹介されました。",
+        query: "間宮林蔵 樺太 間宮海峡 探検"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "江戸時代末期に蝦夷地を6度も踏査し、明治新政府に「北海道」の名を進言・命名した人物は誰か。",
+        options: ["松浦武四郎", "間宮林蔵", "黒田清隆", "鍋島直正", "榎本武揚"],
+        ans: 0,
+        exp: "松浦武四郎はアイヌの長老から聞いた「カイ（この土地に生まれた者）」をもとに「北加伊道」を提案しました。",
+        query: "松浦武四郎 北海道の名付け親 北加伊道"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "1869年に戊辰戦争最後の戦い（箱館戦争）で新政府軍に敗れ、五稜郭で降伏した旧幕府脱走軍の総裁は誰か。",
+        options: ["榎本武揚", "土方歳三", "武田斐三郎", "大鳥圭介", "中島三郎助"],
+        ans: 0,
+        exp: "榎本武揚は蝦夷共和国樹立を目指して五稜郭に立てこもりましたが、1869年5月に降伏しました。",
+        query: "榎本武揚 箱館戦争 五稜郭 降伏 1869年"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "明治新政府が開拓使次官に任じ、アメリカからケプロンを顧問として招いて開拓の基礎を築いた指導者は誰か。",
+        options: ["黒田清隆", "鍋島直正", "大久保利通", "木戸孝允", "島義勇"],
+        ans: 0,
+        exp: "黒田清隆はケプロンの提言を受けて屯田兵制度の導入や札幌農学校の創設を断行しました。",
+        query: "黒田清隆 開拓使 ケプロン 屯田兵"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "札幌の都市計画の原図を描き、「五州第一の都」を目指して都市建設を始めた開拓判官は誰か。",
+        options: ["島義勇（しま よしたけ）", "岩村通俊", "松本十郎", "北原雅長", "調所広丈"],
+        ans: 0,
+        exp: "島義勇は円山から札幌本府の碁盤目状の街路計画を策定し、「北海道開拓の父」と称されます。",
+        query: "島義勇 開拓判官 札幌都市計画 北海道神宮"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "1876年に札幌農学校の初代教頭として着任し、「Boys, be ambitious（少年よ、大志を抱け）」の名言を残した人物は誰か。",
+        options: ["ウィリアム・S・クラーク", "エドウィン・ダン", "ペンハロー", "ブルックス", "ホイーラー"],
+        ans: 0,
+        exp: "マサチューセッツ農科大学学長だったクラーク博士は、札幌農学校でキリスト教主義教育を行いました。",
+        query: "クラーク博士 札幌農学校 大志を抱け"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "北方の警備と開拓を兼ねて士族を中心に組織され、1875年に札幌の琴似に最初に入植した部隊制度は何か。",
+        options: ["屯田兵制度", "警視庁抜刀隊", "開拓農工隊", "八王子千人同心", "蝦夷警備隊"],
+        ans: 0,
+        exp: "屯田兵は農業に従事しながら軍事訓練を受け、琴似を皮切りに全道各地の開拓拠点に配置されました。",
+        query: "屯田兵 琴似 1875年 開拓警備"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "明治初期に真宗大谷派の門徒らが尾札部（伊達）から中山峠を越えて札幌まで約103kmを突貫開削した道路は何か。",
+        options: ["本願寺道路", "札幌本道", "囚人道路", "中央道路", "オロロン道路"],
+        ans: 0,
+        exp: "東本願寺の現如上人らがわずか1年あまりで開削した「本願寺道路」は国道230号の原点となりました。",
+        query: "本願寺道路 現如上人 中山峠 1870年"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "日本海沿岸の鰊漁場に建てられ、親方の居住部分と大勢のヤン衆（漁夫）の寝所を一つにした豪壮な建物は何か。",
+        options: ["鰊番屋（鰊御殿）", "北前船主館", "会所", "旅籠", "運上屋"],
+        ans: 0,
+        exp: "旧花田家番屋（小平町・重文）などに代表される「鰊番屋」は、明治〜大正のニシン景気の栄華を伝えます。",
+        query: "鰊番屋 鰊御殿 小平町 旧花田家番屋"
+      },
+      {
+        cat: "第4章 歴史",
+        q: "1972年（昭和47年）、アジアで初めての冬季オリンピックが開催された都市はどこか。",
+        options: ["札幌市", "旭川市", "小樽市", "長野市", "函館市"],
+        ans: 0,
+        exp: "1972年の札幌冬季五輪を機に地下鉄の開業や地下街整備が進み、札幌は政令指定都市へと発展しました。",
+        query: "札幌冬季オリンピック 1972年 地下鉄開通"
+      },
+
+      // ------------------------------------------
+      // ■ 第5章 祭り（12問）
+      // ------------------------------------------
+      {
+        cat: "第5章 祭り",
+        q: "毎年1月中旬、極寒の津軽海峡に下帯姿の4人の若者（行修者）が御神体を抱いて飛び込む木古内町の神事はどれか。",
+        options: ["寒中みそぎ祭り", "姥神祭", "寒中水ごり祭", "海峡禊神事", "木古内港まつり"],
+        ans: 0,
+        exp: "木古内町・佐女川神社で1831年から続く伝統行事で、昼夜の禊のあと津軽海峡で御神体を清めます。",
+        query: "木古内町 寒中みそぎ祭り 佐女川神社"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "毎年6月14日〜16日に行われ、最終日に平安装束の行列や山車が札幌市内を巡行する祭りの正式名称はどれか。",
+        options: ["北海道神宮例祭", "大通開拓神社祭", "三吉神社例大祭", "札幌市民祭", "道民感謝大祭"],
+        ans: 0,
+        exp: "「札幌まつり」の通称で親しまれる北海道神宮例祭は、神輿渡御と山車の巡行がハイライトです。",
+        query: "北海道神宮例祭 札幌まつり 6月 神輿渡御"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "富山県小矢部市（津沢）から伝承され、重さ約5tもの巨大武者あんどんが激突する沼田町の祭りはどれか。",
+        options: ["沼田町夜高あんどん祭り", "しれとこ斜里ねぶた", "八雲山車行列", "留萌あんどん祭り", "羽幌オロロン祭り"],
+        ans: 0,
+        exp: "北海道三大あんどん祭りの一つ「沼田町夜高あんどん祭り」はぶつかり合い（喧嘩あんどん）が圧巻です。",
+        query: "沼田町夜高あんどん祭り 富山 津沢"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "1950年に始まった「さっぽろ雪まつり」の最初のきっかけとなった出来事はどれか。",
+        options: ["地元の中高生が大通公園の雪捨て場に6基の雪像を作った", "札幌市役所がオリンピック招致のために制作した", "進駐軍がスキー訓練用に造形した", "北海道大学の留学生が北欧の祭りを真似た", "赤十字のチャリティバザーとして始まった"],
+        ans: 0,
+        exp: "1950年に中高生が大通公園の雪捨て場に6基の雪像を作ったことから雪まつりの歴史が始まりました。",
+        query: "さっぽろ雪まつり 1950年 6基 中高生 発祥"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "千歳市支笏湖温泉で1月下旬〜2月中旬に開催され、湖水を吹き付けて凍らせた巨大氷像が並ぶ祭りはどれか。",
+        options: ["千歳・支笏湖氷濤まつり", "旭川冬まつり", "層雲峡温泉氷瀑まつり", "洞爺湖氷彫刻まつり", "網走オホーツク流氷まつり"],
+        ans: 0,
+        exp: "「支笏湖氷濤（ひょうとう）まつり」は骨組みに支笏湖水をスプリンクラーで凍らせた青い氷の美を競います。",
+        query: "千歳 支笏湖氷濤まつり スプリンクラー 氷像"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "上川町層雲峡温泉の石狩川河川敷で1月下旬〜3月に開催される冬の代表的氷の造形イベントはどれか。",
+        options: ["層雲峡温泉氷瀑まつり", "支笏湖氷濤まつり", "旭川冬まつり", "大雪山雪あかり", "白金温泉氷柱祭"],
+        ans: 0,
+        exp: "層雲峡温泉の「氷瀑（ひょうばく）まつり」は滝が凍ったような巨大な氷の建造物やトンネルが名物です。",
+        query: "層雲峡温泉 氷瀑まつり 上川町 石狩川"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "1992年に高知の鳴子と北海道のソーラン節を融合させて始まった札幌の初夏のメガイベントはどれか。",
+        options: ["YOSAKOIソーラン祭り", "さっぽろライラックまつり", "オータムフェスト", "北海ソーランカーニバル", "道民よさこい大賞"],
+        ans: 0,
+        exp: "「鳴子を持って踊ること」「曲にソーラン節のフレーズを入れること」をルールに毎年6月に開催されます。",
+        query: "YOSAKOIソーラン祭り 鳴子 ソーラン節 1992年"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "小樽市で2月中旬に運河や旧手宮線跡にガラスの浮き玉キャンドルが灯される冬のイベントはどれか。",
+        options: ["小樽雪あかりの路", "小樽イルミネーションフェスタ", "さっぽろホワイトイルミネーション", "はこだて冬フェスティバル", "北の光回廊"],
+        ans: 0,
+        exp: "小樽出身の作家・伊藤整の詩集『雪明りの路』にちなんで命名された幻想的なキャンドルまつりです。",
+        query: "小樽雪あかりの路 伊藤整 小樽運河 旧手宮線"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "下川町で毎年2月に開催され、バケツで作った無数の手作りキャンドルが町中を照らすイベントはどれか。",
+        options: ["しもかわアイスキャンドルミュージアム", "下川雪明りフェスティバル", "名寄サンピラーまつり", "美深アイスタウン", "士別キャンドルナイト"],
+        ans: 0,
+        exp: "下川町民が考案したアイスキャンドルは、氷点下15℃以下の極寒を利用して作られ全国へ普及しました。",
+        query: "しもかわアイスキャンドルミュージアム 下川町"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "レナード・バーンスタインの提唱により1990年に創設された札幌の国際教育音楽祭の略称はどれか。",
+        options: ["PMF（パシフィック・ミュージック・フェスティバル）", "AMF", "KMF", "SMF", "HMF"],
+        ans: 0,
+        exp: "PMF（Pacific Music Festival札幌）は世界三大教育音楽祭の一つでKitaraなどを舞台に開催されます。",
+        query: "PMF パシフィックミュージックフェスティバル 札幌 バーンスタイン"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "青森県弘前市との歴史的友好提携を記念して斜里町で毎年7月下旬に運行される山車祭りはどれか。",
+        options: ["しれとこ斜里ねぷた", "八雲山車行列", "沼田夜高あんどん", "網走ねぶた", "北見あんどん祭"],
+        ans: 0,
+        exp: "江戸時代に蝦夷地警備で殉難した津軽藩士の慰霊を契機に、弘前市から伝承された扇ねぷたが練り歩きます。",
+        query: "しれとこ斜里ねぷた 弘前市 友好都市"
+      },
+      {
+        cat: "第5章 祭り",
+        q: "五稜郭の堀を星形に約2,000個の電球でライトアップする函館の冬のイベントはどれか。",
+        options: ["五稜星の夢（ほしのゆめ）", "はこだてクリスマスファンタジー", "五稜郭光のイルミネーション", "星形ライトアップ大賞", "函館ファンタジア"],
+        ans: 0,
+        exp: "冬の五稜郭の堀が雪と光によって星形に浮かび上がるイルミネーションイベントです。",
+        query: "五稜星の夢 函館 五稜郭 イルミネーション"
+      },
+
+      // ------------------------------------------
+      // ■ 第6章 交通網（10問）
+      // ------------------------------------------
+      {
+        cat: "第6章 交通網",
+        q: "2016年3月に開業した北海道新幹線（新青森〜新函館北斗）の青函トンネル区間の軌条構造はどれか。",
+        options: ["三線軌条（デュアルゲージ）", "単線専用レール", "リニア磁気浮上軌条", "標準軌独立専用線", "ゴムタイヤ案内軌条"],
+        ans: 0,
+        exp: "青函トンネル内（約82km）は、標準軌の新幹線と狭軌のJR貨物列車が同一線路を走行する「三線軌条」です。",
+        query: "北海道新幹線 三線軌条 青函トンネル 82km"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "札幌市営地下鉄（南北線・東西線・東豊線）の車両走行方式の全国的な独自性はどれか。",
+        options: ["ゴムタイヤ方式（中央案内軌条式）", "リニアモーター浮上式", "ラック式アプト", "第3軌条集電式鉄車輪", "ケーブル牽引式"],
+        ans: 0,
+        exp: "札幌市営地下鉄は全3路線とも鉄車輪ではなく「ゴムタイヤ」を採用しており、低騒音と急加減速を誇ります。",
+        query: "札幌市営地下鉄 ゴムタイヤ方式 案内軌条"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "札幌の路面電車で、冬の降雪時に軌道を除雪するために竹ブラシを回転させて走る風物詩車両はどれか。",
+        options: ["ササラ電車", "ラッセル車", "ロータリー除雪車", "ポラリス號", "ハイカラ電車"],
+        ans: 0,
+        exp: "竹を束ねたブラシ（ササラ）で軌道上の雪を掻き分ける「ササラ電車」は札幌の冬の象徴です。",
+        query: "ササラ電車 札幌市電 竹ブラシ 除雪"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "美しい景観やドライブ環境の創出を目指し、北海道内で「トカプチ雄大空間」など16ルートが指定されている制度は何か。",
+        options: ["シーニックバイウェイ北海道", "日本風景街道グランプリ", "フラワーロード16", "エコドライブウェイ", "北海道パノラマハイウェイ"],
+        ans: 0,
+        exp: "国土交通省が推進する「シーニックバイウェイ北海道」は景観・観光・地域づくりが融合した取り組みです。",
+        query: "シーニックバイウェイ北海道 16ルート"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "北海道内の国管理・特定地方管理7空港を一括して民間運営（コンセッション）している企業はどこか。",
+        options: ["北海道エアポート株式会社（HAP）", "JR北海道", "AIRDOホールディングス", "新千歳空港ターミナルビル株式会社", "北海道空港振興機構"],
+        ans: 0,
+        exp: "新千歳・函館・旭川・釧路・帯広・女満別・稚内の道内7空港は「北海道エアポート（HAP）」が一括運営しています。",
+        query: "北海道エアポート 7空港 コンセッション"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "函館市電で運行されている、大正初期の木造電車を復元したレトロな観光電車はどれか。",
+        options: ["箱館ハイカラ號", "ササラ号", "らっくる号", "五稜郭レトロトラム", "函館丸"],
+        ans: 0,
+        exp: "「箱館ハイカラ號（39号）」は大正7年当時の車体を復元した観光客に大人気の路面電車です。",
+        query: "箱館ハイカラ號 函館市電 レトロ電車"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "道内最高所（標高1,139m）を通る国道273号の峠で、大雪山系や十勝平野への展望が素晴らしい峠はどれか。",
+        options: ["三国峠", "中山峠", "石北峠", "狩勝峠", "日勝峠"],
+        ans: 0,
+        exp: "三国峠（標高1,139m）は北海道の国道の中で最も高い標高に位置し、松見大橋の樹海ビューで有名です。",
+        query: "三国峠 北海道 国道最高地点 標高1139m"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "小樽と旭川を結ぶ国道12号のうち、美唄市から滝川市までの区間が保持する全国日本一の記録は何か。",
+        options: ["日本一長い直線道路（29.2km）", "日本一トンネルが多い国道", "日本一標高差がある国道", "日本一車線数が多い国道", "日本最古の有料道路"],
+        ans: 0,
+        exp: "国道12号の美唄〜滝川間は「29.2km」にわたり一切カーブがない日本一の直線道路区間です。",
+        query: "国道12号 日本一長い直線道路 29.2km 美唄 滝川"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "新千歳空港と札幌（および小樽）を最速約37分で結ぶJR北海道の快速列車の名称はどれか。",
+        options: ["快速エアポート", "ライラック", "カムイ", "すずらん", "スーパー北斗"],
+        ans: 0,
+        exp: "「快速エアポート」は空港連絡の大動脈として終日高頻度で運行されています。",
+        query: "快速エアポート 新千歳空港 札幌 JR北海道"
+      },
+      {
+        cat: "第6章 交通網",
+        q: "小樽港や苫小牧港から舞鶴・敦賀・新潟・仙台・大洗等を結び、本州と北海道の大動脈を担う長距離フェリーの意義はどれか。",
+        options: ["旅客だけでなく生鮮食料品や工業製品の海上トラック輸送の生命線", "外国人クルーズ船客の専用輸送", "原子力発電燃料の専用船", "冬季のみ運行する流氷観測船", "新幹線代替の観光遊覧船"],
+        ans: 0,
+        exp: "北海道発着の長距離フェリーは、トラックによる生鮮農水産物の本州移出や物資輸送の極めて重要な物流インフラです。",
+        query: "北海道 長距離フェリー 苫小牧 小樽 物流 海上輸送"
+      },
+
+      // ------------------------------------------
+      // ■ 第7章 最新動向（6問）
+      // ------------------------------------------
+      {
+        cat: "第7章 最新動向",
+        q: "2023年9月、札幌市をメイン会場にアジアで初開催されたアドベンチャートラベルの世界的商談会・会議はどれか。",
+        options: ["ATWS（アドベンチャー・トラベル・ワールド・サミット）2023", "世界エコツーリズム会議", "APEC観光大臣会合", "UNWTO世界サミット", "太平洋旅行博"],
+        ans: 0,
+        exp: "ATWS 2023（Adventure Travel World Summit）がアジアで初めて北海道で開催され、世界各国の旅行関係者が集結しました。",
+        query: "ATWS2023 アドベンチャートラベルワールドサミット 北海道"
+      },
+      {
+        cat: "第7章 最新動向",
+        q: "「自然との触れ合い」「身体的アクティビティ」「文化体験」の3要素からなる、富裕層に人気の観光スタイルはどれか。",
+        options: ["アドベンチャーツーリズム（AT）", "ワーケーション", "ダークツーリズム", "メディカルツーリズム", "ショッピングツーリズム"],
+        ans: 0,
+        exp: "アドベンチャーツーリズム（AT）は、3要素のうち2つ以上を満たす旅行形態で、長期滞在と高単価消費が期待されています。",
+        query: "アドベンチャーツーリズム 定義 3要素 自然 アクティビティ 文化"
+      },
+      {
+        cat: "第7章 最新動向",
+        q: "北海道の観光入込客数および宿泊客延べ数が最も集中する四半期（季節）はどれか。",
+        options: ["第1四半期（4〜6月：春）", "第2四半期（7〜9月：夏）", "第3四半期（10〜12月：秋）", "第4四半期（1〜3月：冬）", "年間通じて完全に均等である"],
+        ans: 1,
+        exp: "統計上、富良野・美瑛の花畑や涼しい夏を求める観光客が集中する「第2四半期（7〜9月）」が最も多くなっています。",
+        query: "北海道 観光入込客数 季節別 第2四半期"
+      },
+      {
+        cat: "第7章 最新動向",
+        q: "北海道を訪れる訪日外国人観光客（インバウンド）の国・地域別シェアで、常にトップを占めている地域はどこか。",
+        options: ["台湾", "アメリカ", "オーストラリア", "タイ", "イギリス"],
+        ans: 0,
+        exp: "来道外国人観光客数では「台湾」が常に首位を維持しており、次いで韓国、中国、タイ、香港、米国などが続きます。",
+        query: "北海道 外国人観光客 国別シェア 台湾"
+      },
+      {
+        cat: "第7章 最新動向",
+        q: "花をテーマとした魅力ある観光地域づくりを目指し、2004年に北海道知事が行った宣言はどれか。",
+        options: ["フラワーツーリズム宣言", "ガーデンアイランド北海道宣言", "北の百花宣言", "フローラル北海道プロモーション", "花と緑のマスター宣言"],
+        ans: 0,
+        exp: "北海道知事による「フラワーツーリズム宣言（2004年）」を契機に、北海道ガーデン街道などの広域連携が進みました。",
+        query: "北海道 フラワーツーリズム宣言 2004年 ガーデンアイランド"
+      },
+      {
+        cat: "第7章 最新動向",
+        q: "大雪〜富良野〜十勝を結ぶ、北海道の美しい代表的庭園群を巡る観光ルートの名称はどれか。",
+        options: ["北海道ガーデン街道", "花人街道237", "シーニックフラワーライン", "大雪花めぐり街道", "十勝フローラルロード"],
+        ans: 0,
+        exp: "旭川・大雪から富良野を経て十勝に至る約200kmを結び、8つの名庭園が連なる観光街道が「北海道ガーデン街道」です。",
+        query: "北海道ガーデン街道 8つのガーデン 旭川 富良野 十勝"
+      }
+    ];
+
+    // アプリ状態
+    let examPool = [];      // 抽出・シャッフルされた今回の問題セット
+    let currentIndex = 0;   // 現在の問題インデックス
+    let selectedCount = 50; // 出題数
+    let userAnswers = [];   // ユーザーの回答履歴
+    let examSeconds = 0;    // 回答タイマー
+    let timerTimerId = null;
+
+    // ローカルストレージ対応の問題バンク初期化
+    const STORAGE_KEY = "HKD_MASTER_CUSTOM_QUESTIONS";
+    function getActiveQuestionBank() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.error("Storage load error:", e);
+      }
+      return QUESTION_BANK;
+    }
+
+    function updateTotalCountDisplay() {
+      const bank = getActiveQuestionBank();
+      const el = document.getElementById("total-stored-count");
+      if (el) el.innerText = bank.length;
+    }
+
+    // DOM要素
+    const screenSetup = document.getElementById("screen-setup");
+    const screenPlay = document.getElementById("screen-play");
+    const screenResult = document.getElementById("screen-result");
+    const selectCategory = document.getElementById("select-category");
+    const startExamBtn = document.getElementById("start-exam-btn");
+    const countChips = document.querySelectorAll(".count-chip");
+
+    const toggleJsonImportBtn = document.getElementById("toggle-json-import-btn");
+    const jsonImportPanel = document.getElementById("json-import-panel");
+    const jsonImportTextarea = document.getElementById("json-import-textarea");
+    const btnDoImport = document.getElementById("btn-do-import");
+    const btnResetStorage = document.getElementById("btn-reset-storage");
+    const importMsg = document.getElementById("import-msg");
+
+    const reviewMistakesContainer = document.getElementById("review-mistakes-container");
+    const mistakeCountBadge = document.getElementById("mistake-count-badge");
+    const mistakesList = document.getElementById("mistakes-list");
+
+    const progressBarContainer = document.getElementById("progress-bar-container");
+    const progressBar = document.getElementById("progress-bar");
+    const playQBadge = document.getElementById("play-q-badge");
+    const playCatBadge = document.getElementById("play-cat-badge");
+    const playTimer = document.getElementById("play-timer");
+    const playQText = document.getElementById("play-q-text");
+    const playOptionsList = document.getElementById("play-options-list");
+    const playExpBox = document.getElementById("play-explanation-box");
+    const playResultFeedback = document.getElementById("play-result-feedback");
+    const playExpText = document.getElementById("play-exp-text");
+    const playGoogleSearchBtn = document.getElementById("play-google-search-btn");
+    const nextActionArea = document.getElementById("next-action-area");
+    const playNextBtn = document.getElementById("play-next-btn");
+    const nextBtnText = document.getElementById("next-btn-text");
+    const abandonExamBtn = document.getElementById("abandon-exam-btn");
+
+    const finalCorrectCount = document.getElementById("final-correct-count");
+    const finalTotalCount = document.getElementById("final-total-count");
+    const finalPercent = document.getElementById("final-percent");
+    const finalDuration = document.getElementById("final-duration");
+    const finalMessage = document.getElementById("final-message");
+    const resultGradeBadge = document.getElementById("result-grade-badge");
+    const resultHeadline = document.getElementById("result-headline");
+    const resultIconBox = document.getElementById("result-icon-box");
+    const resultTrophyIcon = document.getElementById("result-trophy-icon");
+    const retryReshuffleBtn = document.getElementById("retry-reshuffle-btn");
+    const backToSetupBtn = document.getElementById("back-to-setup-btn");
+
+    const headerSearchBtn = document.getElementById("header-search-btn");
+    const searchModal = document.getElementById("search-modal");
+    const closeSearchModalBtn = document.getElementById("close-search-modal-btn");
+    const globalSearchForm = document.getElementById("global-search-form");
+    const globalSearchInput = document.getElementById("global-search-input");
+
+    // 出題数チップの切り替え
+    countChips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        countChips.forEach(c => {
+          c.className = "count-chip py-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-slate-50 text-slate-600 hover:bg-emerald-50";
+        });
+        chip.className = "count-chip py-2.5 rounded-xl border-2 border-emerald-600 text-xs font-bold bg-emerald-50 text-emerald-900 shadow-sm";
+        selectedCount = parseInt(chip.getAttribute("data-count"), 10);
+      });
+    });
+
+    // Fisher-Yates アルゴリズムによる完全ランダムシャッフル
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Google検索を開く
+    function openGoogle(keyword) {
+      const query = encodeURIComponent(`北海道観光マスター ${keyword}`);
+      window.open(`https://www.google.com/search?q=${query}`, '_blank', 'noopener,noreferrer');
+    }
+
+    // JSONインポートのトグル
+    toggleJsonImportBtn.addEventListener("click", () => {
+      jsonImportPanel.classList.toggle("hidden");
+    });
+
+    // JSON追加
+    btnDoImport.addEventListener("click", () => {
+      const text = jsonImportTextarea.value.trim();
+      if (!text) return;
+      try {
+        const incoming = JSON.parse(text);
+        if (!Array.isArray(incoming)) {
+          alert("JSONデータは配列形式 [ ... ] で入力してください。");
+          return;
+        }
+        const current = getActiveQuestionBank();
+        const merged = [...current, ...incoming];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        updateTotalCountDisplay();
+        importMsg.classList.remove("hidden");
+        importMsg.innerText = `新たに ${incoming.length} 問追加しました！（合計: ${merged.length}問）`;
+        jsonImportTextarea.value = "";
+      } catch (err) {
+        alert("JSONの解析に失敗しました。書式をご確認ください。\n" + err.message);
+      }
+    });
+
+    // 初期状態に戻す
+    btnResetStorage.addEventListener("click", () => {
+      if (confirm("追加した問題データをリセットし、初期問題に戻しますか？")) {
+        localStorage.removeItem(STORAGE_KEY);
+        updateTotalCountDisplay();
+        importMsg.classList.remove("hidden");
+        importMsg.innerText = "初期問題（125問）にリセットしました。";
+      }
+    });
+
+    // 演習開始（問題抽出・各問の選択肢シャッフル）
+    startExamBtn.addEventListener("click", () => {
+      const activeBank = getActiveQuestionBank();
+      const chosenCat = selectCategory.value;
+      let filtered = activeBank;
+      if (chosenCat !== "all") {
+        filtered = activeBank.filter(q => q.cat.includes(chosenCat) || chosenCat.includes(q.cat));
+      }
+
+      if (filtered.length === 0) {
+        alert("選択された分野に問題が見つかりませんでした。");
+        return;
+      }
+
+      // 問題自体のランダムシャッフル
+      const shuffledQuestions = shuffleArray(filtered);
+      const countToTake = selectedCount >= 9999 ? shuffledQuestions.length : Math.min(selectedCount, shuffledQuestions.length);
+      const selectedQuestions = shuffledQuestions.slice(0, countToTake);
+
+      // 各問題の選択肢をランダム配置（シャッフル）して内部保持
+      examPool = selectedQuestions.map(item => {
+        const originalCorrectText = item.options[item.ans];
+        const shuffledOptions = shuffleArray(item.options);
+        const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
+        return {
+          ...item,
+          options: shuffledOptions,
+          ans: newCorrectIndex,
+          correctText: originalCorrectText
+        };
+      });
+
+      currentIndex = 0;
+      userAnswers = new Array(examPool.length).fill(null);
+      examSeconds = 0;
+
+      // タイマースタート
+      if (timerTimerId) clearInterval(timerTimerId);
+      timerTimerId = setInterval(() => {
+        examSeconds++;
+        const m = String(Math.floor(examSeconds / 60)).padStart(2, '0');
+        const s = String(examSeconds % 60).padStart(2, '0');
+        playTimer.innerText = `${m}:${s}`;
+      }, 1000);
+
+      // 画面切り替え
+      screenSetup.classList.add("hidden");
+      screenResult.classList.add("hidden");
+      screenPlay.classList.remove("hidden");
+      progressBarContainer.classList.remove("hidden");
+
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 問題の描画
+    function renderQuestion() {
+      const q = examPool[currentIndex];
+      const total = examPool.length;
+
+      // ヘッダー情報
+      playQBadge.innerText = `第 ${currentIndex + 1} / ${total} 問`;
+      playCatBadge.innerText = q.cat;
+      playQText.innerText = q.q;
+
+      // プログレスバー
+      const pct = (currentIndex / total) * 100;
+      progressBar.style.width = `${pct}%`;
+
+      // 選択肢リセット
+      playOptionsList.innerHTML = "";
+      playExpBox.classList.add("hidden");
+      nextActionArea.classList.add("hidden");
+
+      const optionLabels = ["①", "②", "③", "④", "⑤"];
+
+      q.options.forEach((optText, optIdx) => {
+        const btn = document.createElement("button");
+        btn.className = "w-full p-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition transform active:scale-[0.99] shadow-sm flex items-start gap-3";
+        btn.innerHTML = `
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5 border border-slate-300 bg-slate-100 text-slate-700 opt-num-badge">
+            ${optionLabels[optIdx]}
+          </span>
+          <span class="text-sm font-medium text-slate-800 leading-relaxed">${optText}</span>
+        `;
+
+        btn.addEventListener("click", () => handleSelectOption(optIdx, btn));
+        playOptionsList.appendChild(btn);
+      });
+
+      // Google検索ボタン
+      playGoogleSearchBtn.onclick = () => {
+        openGoogle(q.query || q.q);
+      };
+    }
+
+    // 選択肢タップ時の即時判定
+    function handleSelectOption(optIdx, chosenBtn) {
+      if (userAnswers[currentIndex] !== null) return; // 回答済なら無視
+
+      const q = examPool[currentIndex];
+      const isCorrect = (optIdx === q.ans);
+      userAnswers[currentIndex] = { 
+        selected: optIdx, 
+        correct: isCorrect,
+        question: q
+      };
+
+      const allButtons = playOptionsList.querySelectorAll("button");
+      allButtons.forEach((btn, idx) => {
+        btn.disabled = true;
+        const badge = btn.querySelector(".opt-num-badge");
+
+        if (idx === q.ans) {
+          btn.className = "w-full p-3.5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-left transition shadow-sm flex items-start gap-3 ring-2 ring-emerald-500/30";
+          badge.className = "inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5 bg-emerald-600 text-white border border-emerald-600";
+        } else if (idx === optIdx && !isCorrect) {
+          btn.className = "w-full p-3.5 rounded-2xl border-2 border-rose-400 bg-rose-50 text-left transition opacity-90 shadow-sm flex items-start gap-3 line-through text-rose-900";
+          badge.className = "inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shrink-0 mt-0.5 bg-rose-500 text-white border border-rose-500";
+        } else {
+          btn.className = "w-full p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-left transition opacity-50 flex items-start gap-3 text-slate-400";
+        }
+      });
+
+      // フィードバックと解説表示
+      const optionLabels = ["①", "②", "③", "④", "⑤"];
+      playResultFeedback.className = isCorrect ? "font-bold text-sm flex items-center gap-1.5 text-emerald-700" : "font-bold text-sm flex items-center gap-1.5 text-rose-600";
+      playResultFeedback.innerHTML = isCorrect 
+        ? `<i class="ph-bold ph-check-circle text-lg"></i> <span>正解！ (${optionLabels[q.ans]} ${q.correctText})</span>`
+        : `<i class="ph-bold ph-x-circle text-lg"></i> <span>不正解 (正解: ${optionLabels[q.ans]} ${q.correctText})</span>`;
+
+      playExpText.innerText = q.exp;
+      playExpBox.classList.remove("hidden");
+
+      // 次へボタンの表示
+      const isLast = currentIndex === examPool.length - 1;
+      nextBtnText.innerText = isLast ? "採点結果を見る" : "次の問題へ進む";
+      nextActionArea.classList.remove("hidden");
+    }
+
+    // 次の問題へ
+    playNextBtn.addEventListener("click", () => {
+      if (currentIndex < examPool.length - 1) {
+        currentIndex++;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        finishExam();
+      }
+    });
+
+    // 採点結果発表 ＆ 間違えた問題のリスト化
+    function finishExam() {
+      if (timerTimerId) clearInterval(timerTimerId);
+
+      const total = examPool.length;
+      const mistakes = userAnswers.filter(a => a && !a.correct);
+      const correctCount = total - mistakes.length;
+      const pct = Math.round((correctCount / total) * 100);
+
+      progressBar.style.width = "100%";
+      finalCorrectCount.innerText = correctCount;
+      finalTotalCount.innerText = `/ ${total} 問`;
+      finalPercent.innerText = `${pct}%`;
+
+      const m = String(Math.floor(examSeconds / 60)).padStart(2, '0');
+      const s = String(examSeconds % 60).padStart(2, '0');
+      finalDuration.innerText = `${m}:${s}`;
+
+      if (pct >= 70) {
+        resultGradeBadge.className = "px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+        resultGradeBadge.innerText = "🎉 合格ライン達成！";
+        resultHeadline.innerText = "合格レベルに到達しています！";
+        resultIconBox.className = "w-20 h-20 mx-auto rounded-3xl flex items-center justify-center bg-emerald-100 text-emerald-600 shadow-inner";
+        resultTrophyIcon.className = "text-4xl ph-bold ph-trophy";
+        finalMessage.innerHTML = `正答率<strong>${pct}%</strong>で見事合格基準（70%以上）をクリアしました！選択肢の位置が変わっても確実に正解を選び取れています。`;
+      } else {
+        resultGradeBadge.className = "px-3 py-1 text-xs font-bold rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+        resultGradeBadge.innerText = "📚 重点復習を推奨";
+        resultHeadline.innerText = "間違えた問題を振り返りましょう";
+        resultIconBox.className = "w-20 h-20 mx-auto rounded-3xl flex items-center justify-center bg-rose-100 text-rose-600 shadow-inner";
+        resultTrophyIcon.className = "text-4xl ph-bold ph-book-open-text";
+        finalMessage.innerHTML = `正答率<strong>${pct}%</strong>です。下記の間違えた問題をチェックし、解説とGoogle検索を活用して知識を定着させましょう。`;
+      }
+
+      // 間違えた問題リストの生成
+      mistakesList.innerHTML = "";
+      if (mistakes.length > 0) {
+        mistakeCountBadge.innerText = mistakes.length;
+        reviewMistakesContainer.classList.remove("hidden");
+
+        mistakes.forEach((item, idx) => {
+          const card = document.createElement("div");
+          card.className = "bg-rose-50/70 border border-rose-200 rounded-2xl p-4 space-y-2 text-xs";
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="bg-rose-200 text-rose-800 font-bold px-2 py-0.5 rounded text-[10px]">復習 #${idx + 1}</span>
+              <span class="text-slate-500 font-medium">${item.question.cat}</span>
+            </div>
+            <p class="font-bold text-slate-800 text-sm leading-snug">${item.question.q}</p>
+            <div class="p-2 bg-white rounded-xl border border-rose-100 text-[11px] space-y-1">
+              <p class="text-rose-600">❌ あなたの回答: <strong>${item.question.options[item.selected]}</strong></p>
+              <p class="text-emerald-700 font-bold">⭕ 正解: ${item.question.correctText}</p>
+            </div>
+            <p class="text-slate-600 bg-white/70 p-2.5 rounded-xl border border-slate-200 leading-relaxed text-[11px]">${item.question.exp}</p>
+            <button class="w-full mt-1 bg-white hover:bg-sky-50 text-sky-700 font-bold py-1.5 rounded-xl border border-sky-300 text-[11px] flex items-center justify-center gap-1 transition search-mistake-btn">
+              <i class="ph-bold ph-google-logo"></i>
+              <span>この項目をGoogleで検索</span>
+            </button>
+          `;
+          card.querySelector(".search-mistake-btn").onclick = () => {
+            openGoogle(item.question.query || item.question.q);
+          };
+          mistakesList.appendChild(card);
+        });
+      } else {
+        reviewMistakesContainer.classList.add("hidden");
+      }
+
+      screenPlay.classList.add("hidden");
+      screenResult.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 中断して設定画面に戻る
+    abandonExamBtn.addEventListener("click", () => {
+      if (confirm("演習を中断して設定画面に戻りますか？")) {
+        if (timerTimerId) clearInterval(timerTimerId);
+        progressBarContainer.classList.add("hidden");
+        screenPlay.classList.add("hidden");
+        screenResult.classList.add("hidden");
+        screenSetup.classList.remove("hidden");
+      }
+    });
+
+    // もう一度解く（再シャッフル）
+    retryReshuffleBtn.addEventListener("click", () => {
+      startExamBtn.click();
+    });
+
+    // 設定画面へ戻る
+    backToSetupBtn.addEventListener("click", () => {
+      progressBarContainer.classList.add("hidden");
+      screenResult.classList.add("hidden");
+      screenSetup.classList.remove("hidden");
+      updateTotalCountDisplay();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // 初期起動時の問題数更新
+    updateTotalCountDisplay();
+
+    // ヘッダー検索モーダル
+    headerSearchBtn.addEventListener("click", () => {
+      searchModal.classList.remove("hidden");
+      globalSearchInput.focus();
+    });
+    closeSearchModalBtn.addEventListener("click", () => {
+      searchModal.classList.add("hidden");
+    });
+    globalSearchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = globalSearchInput.value.trim();
+      if (val) {
+        openGoogle(val);
+      }
+    });
+  </script>
+</body>
+</html>
