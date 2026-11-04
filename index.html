@@ -66,17 +66,17 @@
           </div>
         </div>
 
+        <button onclick="startQuiz()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 active:scale-[0.99] transition flex items-center justify-center gap-2">
+          <span id="startBtnText">ランダム演習をスタート (50問)</span>
+        </button>
+
         <div class="bg-amber-50 border border-amber-200/70 rounded-xl p-3 flex items-start gap-2 text-xs text-amber-800 mb-5">
           <span class="text-base">🔀</span>
           <div>
             <p class="font-bold">選択肢シャッフル機能 稼働中</p>
             <p class="text-amber-700 leading-relaxed text-[11px]">5つの選択肢が毎回完全ランダムに並び替わります。位置の記憶ではなく確実な知識定着が可能です。</p>
           </div>
-        </div>
-
-        <button onclick="startQuiz()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 active:scale-[0.99] transition flex items-center justify-center gap-2">
-          <span>🚀</span> <span id="startBtnText">ランダム演習をスタート (50問)</span>
-        </button>
+        </div>   
       </div>
     </section>
 
@@ -319,7 +319,7 @@
       shuffledChoices.forEach((choice, index) => {
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = "choice-btn w-full p-3 sm:p-3.5 text-left rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/60 active:bg-blue-100 text-xs sm:text-sm font-semibold text-slate-800 transition flex items-start gap-2.5 shadow-sm";
+        btn.className = "choice-btn w-full p-3 sm:p-3.5 text-left rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50/60 active:bg-blue-100 text-sm sm:text-base font-semibold text-slate-800 transition flex items-start gap-2.5 shadow-sm";
         btn.onclick = () => handleChoice(choice, btn);
         btn.innerHTML = `
           <span class="w-5 h-5 rounded-full bg-white border border-slate-300 text-slate-500 text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">${index + 1}</span>
@@ -340,11 +340,11 @@
         btn.disabled = true;
         const btnText = btn.querySelector(".flex-grow").textContent;
         if (btnText === q.ans) {
-          btn.className = "w-full p-3 sm:p-3.5 text-left rounded-xl border-2 border-emerald-500 bg-emerald-50 text-xs sm:text-sm font-bold text-emerald-900 transition flex items-start gap-2.5 shadow-sm";
+          btn.className = "w-full p-3 sm:p-3.5 text-left rounded-xl border-2 border-emerald-500 bg-emerald-50 text-sm sm:text-base font-bold text-emerald-900 transition flex items-start gap-2.5 shadow-sm";
           btn.querySelector(".w-5").className = "w-5 h-5 rounded-full bg-emerald-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5";
           btn.querySelector(".w-5").innerHTML = "✓";
         } else if (btn === clickedBtn && !isCorrect) {
-          btn.className = "w-full p-3 sm:p-3.5 text-left rounded-xl border-2 border-rose-500 bg-rose-50 text-xs sm:text-sm font-bold text-rose-900 transition flex items-start gap-2.5 shadow-sm";
+          btn.className = "w-full p-3 sm:p-3.5 text-left rounded-xl border-2 border-rose-500 bg-rose-50 text-sm sm:text-base font-bold text-rose-900 transition flex items-start gap-2.5 shadow-sm";
           btn.querySelector(".w-5").className = "w-5 h-5 rounded-full bg-rose-600 text-white text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5";
           btn.querySelector(".w-5").innerHTML = "✕";
         } else {
