@@ -28,9 +28,14 @@
           <p class="text-[11px] text-blue-200" id="bankSummaryLabel">公式テキスト完全準拠 実戦問題アプリ</p>
         </div>
       </div>
-      <button onclick="confirmReset()" class="text-xs bg-white/10 hover:bg-white/20 active:bg-white/30 px-3 py-1.5 rounded-full transition text-blue-100 border border-white/20 flex items-center gap-1">
-        <span>🔄</span> TOPへ
-      </button>
+      <div class="flex items-center gap-2">
+        <button id="soundToggleBtn" onclick="toggleSound()" class="text-xs bg-white/15 hover:bg-white/25 active:bg-white/30 px-2.5 py-1.5 rounded-full transition text-white border border-white/25 flex items-center gap-1">
+          <span id="soundIcon">🔊</span><span id="soundLabel" class="hidden sm:inline">音ON</span>
+        </button>
+        <button onclick="confirmReset()" class="text-xs bg-white/10 hover:bg-white/20 active:bg-white/30 px-3 py-1.5 rounded-full transition text-blue-100 border border-white/20 flex items-center gap-1">
+          <span>🔄</span> TOPへ
+        </button>
+      </div>
     </div>
   </header>
 
@@ -66,11 +71,11 @@
           </div>
         </div>
 
-        <button onclick="startQuiz()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 active:scale-[0.99] transition flex items-center justify-center gap-2">
+        <button onclick="startQuiz()" class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 active:scale-[0.99] transition flex items-center justify-center gap-2 mb-5">
           <span id="startBtnText">ランダム演習をスタート (50問)</span>
         </button>
 
-        <div class="bg-amber-50 border border-amber-200/70 rounded-xl p-3 flex items-start gap-2 text-xs text-amber-800 mb-5">
+        <div class="bg-amber-50 border border-amber-200/70 rounded-xl p-3 flex items-start gap-2 text-xs text-amber-800">
           <span class="text-base">🔀</span>
           <div>
             <p class="font-bold">選択肢シャッフル機能 稼働中</p>
@@ -183,6 +188,102 @@
     // questions.js が未読み込みまたは空の場合の安全策
     const QUESTIONS_DATA = (typeof QUESTIONS !== 'undefined' && Array.isArray(QUESTIONS)) ? QUESTIONS : [];
 
+    // ==========================================
+    // サウンドエンジン (Web Audio API: 外部音源不要)
+    // ==========================================
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, type, duration, startTimeOffset = 0, gainVal = 0.15) {
+      if (!soundEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime + startTimeOffset;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(gainVal, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(now);
+      osc.stop(now + duration);
+    }
+
+    // 1. 正解音：爽やかな「ピンポーン♪」
+    function playCorrectSound() {
+      playTone(880, 'sine', 0.14, 0, 0.18);       // ピン
+      playTone(1174.66, 'sine', 0.35, 0.13, 0.2); // ポーン
+    }
+
+    // 2. 不正解時：ブーは鳴らさず無音
+    function playWrongSound() {
+      // 完全無音仕様
+    }
+
+    // 3. スタート時のジングル：「タラララン♪」
+    function playStartJingle() {
+      playTone(523.25, 'triangle', 0.12, 0.00, 0.14);
+      playTone(659.25, 'triangle', 0.12, 0.10, 0.14);
+      playTone(783.99, 'triangle', 0.12, 0.20, 0.14);
+      playTone(1046.50, 'triangle', 0.35, 0.30, 0.16);
+    }
+
+    // 4. 結果発表のファンファーレ（70%以上合格圏内）
+    function playFanfare() {
+      playTone(523.25, 'triangle', 0.13, 0.00, 0.16);
+      playTone(659.25, 'triangle', 0.13, 0.12, 0.16);
+      playTone(783.99, 'triangle', 0.13, 0.24, 0.16);
+      playTone(1046.50, 'triangle', 0.22, 0.36, 0.18);
+      playTone(783.99, 'triangle', 0.14, 0.58, 0.15);
+      playTone(1046.50, 'triangle', 0.55, 0.72, 0.20);
+    }
+
+    // 5. 結果発表の穏やかな終了音（70%未満）
+    function playFinishSoft() {
+      playTone(659.25, 'sine', 0.20, 0.00, 0.12);
+      playTone(587.33, 'sine', 0.20, 0.18, 0.12);
+      playTone(523.25, 'sine', 0.45, 0.36, 0.14);
+    }
+
+    // ボタン操作の軽いタップ音
+    function playClickSound() {
+      playTone(600, 'sine', 0.05, 0, 0.06);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById("soundIcon");
+      const label = document.getElementById("soundLabel");
+      if (soundEnabled) {
+        icon.textContent = "🔊";
+        label.textContent = "音ON";
+        playClickSound();
+      } else {
+        icon.textContent = "🔇";
+        label.textContent = "消音";
+      }
+    }
+
+    // ==========================================
+    // クイズ制御ロジック
+    // ==========================================
     let currentQuestions = [];
     let currentIdx = 0;
     let correctCount = 0;
@@ -194,7 +295,6 @@
     const CATEGORIES = [
       { id: "all", name: "全分野（実戦模試）", icon: "🌐" },
       { id: "基礎情報", name: "基礎情報", icon: "📒" },
-      { id: "自然", name: "自然環境", icon: "🌲" },
       { id: "道南", name: "道南エリア", icon: "⚓" },
       { id: "道央", name: "道央エリア", icon: "🏙️" },
       { id: "道北", name: "道北エリア", icon: "🌾" },
@@ -203,6 +303,7 @@
       { id: "十勝", name: "十勝エリア", icon: "🥔" },
       { id: "歴史", name: "北海道の歴史", icon: "📜" },
       { id: "祭り", name: "イベント・祭り", icon: "🎆" },
+      { id: "自然", name: "自然環境", icon: "🌲" },
       { id: "交通網", name: "交通機関・新幹線", icon: "🚅" },
       { id: "観光動向", name: "最新動向・統計", icon: "📈" }
     ];
@@ -224,7 +325,10 @@
             ? "border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-sm"
             : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
         }`;
-        btn.onclick = () => selectCategory(cat.id);
+        btn.onclick = () => {
+          playClickSound();
+          selectCategory(cat.id);
+        };
         btn.innerHTML = `
           <div class="flex items-center gap-1.5 text-xs">
             <span>${cat.icon}</span>
@@ -243,6 +347,7 @@
     }
 
     function setCountMode(mode) {
+      playClickSound();
       selectedCountMode = mode;
       document.querySelectorAll(".count-opt-btn").forEach(btn => {
         if (btn.getAttribute("data-count") === String(mode)) {
@@ -282,6 +387,8 @@
         alert("選択されたカテゴリに問題がありません。questions.js に問題を追加してください。");
         return;
       }
+
+      playStartJingle();
 
       const shuffledPool = shuffle(pool);
       const limit = selectedCountMode === "all" ? shuffledPool.length : Math.min(selectedCountMode, shuffledPool.length);
@@ -336,6 +443,12 @@
       const q = currentQuestions[currentIdx];
       const isCorrect = (selectedText === q.ans);
 
+      if (isCorrect) {
+        playCorrectSound();
+      } else {
+        playWrongSound();
+      }
+
       const buttons = document.querySelectorAll(".choice-btn");
       buttons.forEach(btn => {
         btn.disabled = true;
@@ -375,6 +488,7 @@
     }
 
     function nextQuestion() {
+      playClickSound();
       currentIdx++;
       if (currentIdx < currentQuestions.length) {
         renderCurrentQuestion();
@@ -389,6 +503,12 @@
 
       const total = currentQuestions.length;
       const rate = Math.round((correctCount / total) * 100);
+
+      if (rate >= 70) {
+        playFanfare();
+      } else {
+        playFinishSoft();
+      }
 
       document.getElementById("totalAnsweredCount").textContent = total;
       document.getElementById("finalCorrectCount").textContent = correctCount;
@@ -450,6 +570,7 @@
     }
 
     function goToTop() {
+      playClickSound();
       document.getElementById("resultScreen").classList.add("hidden");
       document.getElementById("quizScreen").classList.add("hidden");
       document.getElementById("configScreen").classList.remove("hidden");
