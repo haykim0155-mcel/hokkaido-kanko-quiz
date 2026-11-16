@@ -30,7 +30,7 @@
       </div>
       <div class="flex items-center gap-2">
         <button id="soundToggleBtn" onclick="toggleSound()" class="text-xs bg-white/15 hover:bg-white/25 active:bg-white/30 px-2.5 py-1.5 rounded-full transition text-white border border-white/25 flex items-center gap-1">
-          <span id="soundIcon">🔊</span><span id="soundLabel" class="hidden sm:inline">音ON</span>
+          <span id="soundIcon">🔊</span><span id="soundLabel" class="hidden sm:inline">音・振動ON</span>
         </button>
         <button onclick="confirmReset()" class="text-xs bg-white/10 hover:bg-white/20 active:bg-white/30 px-3 py-1.5 rounded-full transition text-blue-100 border border-white/20 flex items-center gap-1">
           <span>🔄</span> TOPへ
@@ -189,7 +189,7 @@
     const QUESTIONS_DATA = (typeof QUESTIONS !== 'undefined' && Array.isArray(QUESTIONS)) ? QUESTIONS : [];
 
     // ==========================================
-    // サウンドエンジン (Web Audio API: 外部音源不要)
+    // サウンド＆バイブレーションエンジン
     // ==========================================
     let soundEnabled = true;
     let audioCtx = null;
@@ -204,7 +204,11 @@
       }
     }
 
-    function playTone(freq, type, duration, startTimeOffset = 0, gainVal = 0.15) {
+    // 初回タッチ時にオーディオを確実にアンロック（かすれ防止）
+    document.addEventListener('touchstart', initAudio, { once: true });
+    document.addEventListener('click', initAudio, { once: true });
+
+    function playTone(freq, type, duration, startTimeOffset = 0, gainVal = 0.6) {
       if (!soundEnabled) return;
       initAudio();
       if (!audioCtx) return;
@@ -216,7 +220,9 @@
       osc.type = type;
       osc.frequency.setValueAtTime(freq, now);
 
-      gain.gain.setValueAtTime(gainVal, now);
+      // 立ち上がりをくっきりさせ、余韻を自然に減衰させる
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(gainVal, now + 0.015);
       gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
       osc.connect(gain);
@@ -226,45 +232,64 @@
       osc.stop(now + duration);
     }
 
-    // 1. 正解音：爽やかな「ピンポーン♪」
-    function playCorrectSound() {
-      playTone(880, 'sine', 0.14, 0, 0.18);       // ピン
-      playTone(1174.66, 'sine', 0.35, 0.13, 0.2); // ポーン
+    // チャイム専用の倍音付きベル音
+    function playChimeNote(freq, duration, offset, volume = 0.65) {
+      // 基音（クリアなサイン波）
+      playTone(freq, 'sine', duration, offset, volume);
+      // 2倍音（金属の鐘のような透明感を追加）
+      playTone(freq * 2, 'sine', duration * 0.45, offset, volume * 0.25);
     }
 
-    // 2. 不正解時：ブーは鳴らさず無音
-    function playWrongSound() {
-      // 完全無音仕様
+    // 1. 正解音＆バイブレーション：本物のクイズチャイム「ピンポーーーン♪」＋ 1秒間1回振動
+    function playCorrectFeedback() {
+      if (!soundEnabled) return;
+      // ピン（シ5: 987.77Hz）→ ポーーーン（ソ5: 783.99Hz）
+      playChimeNote(987.77, 0.35, 0.00, 0.70);
+      playChimeNote(783.99, 0.85, 0.24, 0.75);
+
+      // バイブレーション：1秒間（1000ms）1回
+      if (navigator.vibrate) {
+        navigator.vibrate(1000);
+      }
+    }
+
+    // 2. 不正解時：ブーは鳴らさず無音 ＋ 0.5秒間2回振動
+    function playWrongFeedback() {
+      if (!soundEnabled) return;
+      // バイブレーション：0.5秒振動 → 0.15秒休止 → 0.5秒振動
+      if (navigator.vibrate) {
+        navigator.vibrate([500, 150, 500]);
+      }
     }
 
     // 3. スタート時のジングル：「タラララン♪」
     function playStartJingle() {
-      playTone(523.25, 'triangle', 0.12, 0.00, 0.14);
-      playTone(659.25, 'triangle', 0.12, 0.10, 0.14);
-      playTone(783.99, 'triangle', 0.12, 0.20, 0.14);
-      playTone(1046.50, 'triangle', 0.35, 0.30, 0.16);
+      playTone(523.25, 'triangle', 0.16, 0.00, 0.45);
+      playTone(659.25, 'triangle', 0.16, 0.11, 0.45);
+      playTone(783.99, 'triangle', 0.16, 0.22, 0.45);
+      playTone(1046.50, 'triangle', 0.45, 0.33, 0.55);
     }
 
     // 4. 結果発表のファンファーレ（70%以上合格圏内）
     function playFanfare() {
-      playTone(523.25, 'triangle', 0.13, 0.00, 0.16);
-      playTone(659.25, 'triangle', 0.13, 0.12, 0.16);
-      playTone(783.99, 'triangle', 0.13, 0.24, 0.16);
-      playTone(1046.50, 'triangle', 0.22, 0.36, 0.18);
-      playTone(783.99, 'triangle', 0.14, 0.58, 0.15);
-      playTone(1046.50, 'triangle', 0.55, 0.72, 0.20);
+      playTone(523.25, 'triangle', 0.16, 0.00, 0.50);
+      playTone(659.25, 'triangle', 0.16, 0.13, 0.50);
+      playTone(783.99, 'triangle', 0.16, 0.26, 0.50);
+      playTone(1046.50, 'triangle', 0.26, 0.39, 0.55);
+      playTone(783.99, 'triangle', 0.16, 0.64, 0.45);
+      playTone(1046.50, 'triangle', 0.70, 0.80, 0.65);
     }
 
     // 5. 結果発表の穏やかな終了音（70%未満）
     function playFinishSoft() {
-      playTone(659.25, 'sine', 0.20, 0.00, 0.12);
-      playTone(587.33, 'sine', 0.20, 0.18, 0.12);
-      playTone(523.25, 'sine', 0.45, 0.36, 0.14);
+      playTone(659.25, 'sine', 0.25, 0.00, 0.45);
+      playTone(587.33, 'sine', 0.25, 0.20, 0.45);
+      playTone(523.25, 'sine', 0.55, 0.40, 0.50);
     }
 
     // ボタン操作の軽いタップ音
     function playClickSound() {
-      playTone(600, 'sine', 0.05, 0, 0.06);
+      playTone(660, 'sine', 0.06, 0, 0.25);
     }
 
     function toggleSound() {
@@ -273,11 +298,12 @@
       const label = document.getElementById("soundLabel");
       if (soundEnabled) {
         icon.textContent = "🔊";
-        label.textContent = "音ON";
+        label.textContent = "音・振動ON";
         playClickSound();
       } else {
         icon.textContent = "🔇";
         label.textContent = "消音";
+        if (navigator.vibrate) navigator.vibrate(0);
       }
     }
 
@@ -444,9 +470,9 @@
       const isCorrect = (selectedText === q.ans);
 
       if (isCorrect) {
-        playCorrectSound();
+        playCorrectFeedback();
       } else {
-        playWrongSound();
+        playWrongFeedback();
       }
 
       const buttons = document.querySelectorAll(".choice-btn");
